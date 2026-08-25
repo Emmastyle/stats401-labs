@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A D3.js bar chart of student scores for STATS 401 Lab 1.">
+  <title>Lab 1 · Student Scores</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="lab-page">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
+    <span class="semester">Lab 01 / 10</span>
+  </header>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+    <section class="lab-intro">
+      <div><p class="eyebrow">Lab 01 · D3.js Fundamentals</p><h1>Student<br><em>Scores.</em></h1></div>
+      <p>This first data-driven visualization loads student scores from an external CSV file and translates each score into the height of an SVG bar.</p>
+    </section>
+    <section class="chart-shell" aria-labelledby="chart-title">
+      <div class="chart-heading">
+        <div><h2 id="chart-title">Student Scores</h2><p>Score out of 100 · eight students</p></div>
+        <span class="chart-key">Score</span>
+      </div>
+      <div id="chart" role="img" aria-label="Bar chart comparing the scores of eight students" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="../js/d3.v7.min.js"></script>
+  <script src="../js/lab1.js"></script>
+</body>
+</html>
