@@ -67,7 +67,14 @@ async function drawStudentsChart() {
         .attr("r", d => sizeScale(d.year))
         .attr("fill", d => colorScale(d.major))
         .attr("opacity", 0.85)
+        .attr("stroke", "none")
         .on("mouseover", function (event, d) {
+            d3.select(this)
+                .attr("opacity", 1)
+                .attr("fill", d3.color(colorScale(d.major)).darker(0.9).formatHex())
+                .attr("r", sizeScale(d.year) + 1.4)
+                .attr("stroke", "#17211d")
+                .attr("stroke-width", 2);
             tooltip
                 .style("opacity", 1)
                 .html(`
@@ -83,7 +90,13 @@ async function drawStudentsChart() {
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY + 10}px`);
         })
-        .on("mouseout", function () {
+        .on("mouseout", function (event, d) {
+            d3.select(this)
+                .attr("opacity", 0.85)
+                .attr("fill", colorScale(d.major))
+                .attr("r", sizeScale(d.year))
+                .attr("stroke", "none")
+                .attr("stroke-width", 0);
             tooltip.style("opacity", 0);
         });
 
@@ -250,6 +263,22 @@ async function drawCitiesChart() {
         .join("g")
         .attr("class", "city-row")
         .on("mouseover", function (event, d) {
+            rows.attr("opacity", 0.42);
+            d3.select(this).attr("opacity", 1).raise();
+
+            d3.select(this)
+                .select("line")
+                .attr("opacity", 1)
+                .attr("stroke-width", levelStroke(d.development_level) + 1.6)
+                .attr("stroke", d3.color(regionColors(d.region)).darker(1).formatHex());
+
+            d3.select(this)
+                .select("path")
+                .attr("opacity", 1)
+                .attr("stroke-width", levelStroke(d.development_level) + 1.6)
+                .attr("stroke", "#000000")
+                .attr("fill", d3.color(regionColors(d.region)).darker(1.05).formatHex());
+
             tooltip
                 .style("opacity", 1)
                 .html(`
@@ -265,7 +294,22 @@ async function drawCitiesChart() {
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY + 10}px`);
         })
-        .on("mouseout", function () {
+        .on("mouseout", function (event, d) {
+            rows.attr("opacity", 1);
+
+            d3.select(this)
+                .select("line")
+                .attr("opacity", levelOpacity(d.development_level))
+                .attr("stroke-width", levelStroke(d.development_level))
+                .attr("stroke", regionColors(d.region));
+
+            d3.select(this)
+                .select("path")
+                .attr("opacity", levelOpacity(d.development_level))
+                .attr("stroke-width", levelStroke(d.development_level))
+                .attr("stroke", "#17211d")
+                .attr("fill", regionColors(d.region));
+
             tooltip.style("opacity", 0);
         });
 

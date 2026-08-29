@@ -117,15 +117,18 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .tooltip {
   position: absolute;
   background: #ffffff;
+  color: #17211d;
   border: 1px solid #aaa;
   padding: 8px 10px;
   border-radius: 4px;
   pointer-events: none;
   opacity: 0;
   font-size: 14px;
+  font-weight: 500;
   line-height: 1.4;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+.tooltip strong { color: #17211d; font-weight: 700; }
 
 .placeholder { min-height: calc(100vh - 92px); display: grid; place-items: center; text-align: center; padding: 50px 20px; }
 .placeholder .lab-number { color: var(--orange); font-size: 18px; letter-spacing: .15em; }
