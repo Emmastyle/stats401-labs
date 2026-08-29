@@ -85,14 +85,35 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .chart-key::before { content: ""; width: 10px; height: 10px; background: var(--orange); }
 #chart { width: 100%; min-height: 440px; overflow-x: auto; }
 #chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
-#assignment-chart { width: 100%; min-height: 440px; overflow-x: auto; }
-#assignment-chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+#students-chart { width: 100%; min-height: 440px; overflow-x: auto; }
+#students-chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
 .bar { fill: var(--orange); transition: fill .2s, opacity .2s; }
 .bar:hover { fill: var(--green); }
 .bar-score { fill: var(--ink); font-size: 15px; font-weight: 600; }
 .bar-name { fill: #65706b; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
 .baseline { stroke: var(--line); }
 .chart-error { margin: 40px 0; padding: 18px; border-left: 3px solid var(--orange); color: #7b3420; background: #fae4d9; }
+.lab-note { margin-top: 24px; }
+.lab-note h2 { margin: 0 0 12px; font-size: 28px; }
+.lab-note p { margin: 0; max-width: 980px; color: #33413b; line-height: 1.7; font-size: 15px; }
+.encoding-guide {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: #f8f5ef;
+}
+.encoding-guide h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-weight: 600;
+}
+.encoding-guide p {
+  margin: 6px 0;
+  color: #33413b;
+  font-size: 14px;
+  line-height: 1.45;
+}
 .tooltip {
   position: absolute;
   background: #ffffff;
