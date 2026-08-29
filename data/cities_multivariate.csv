@@ -1,0 +1,13 @@
+city,population,temp_c,development_level,region
+Aurora,1.2,16.5,High,North
+Bayside,0.7,21.0,Medium,South
+Cedar,2.1,13.5,High,West
+Dover,0.5,24.5,Low,South
+Elmwood,1.6,18.0,Medium,East
+Fairview,2.8,10.5,High,North
+Glenville,0.9,26.0,Low,West
+Harbor,1.9,19.5,Medium,East
+Ivydale,3.2,12.0,High,West
+Juniper,0.6,22.5,Low,South
+Kingston,1.4,17.0,Medium,North
+Lakeside,2.4,15.0,High,East

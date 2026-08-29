@@ -1,18 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 2 · STATS 401</title>
-  <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Lab 2 - Multivariate Visualization</title>
+
+    <link rel="stylesheet"
+          href="../css/style.css">
 </head>
-<body class="lab-page">
-  <header class="site-header">
-    <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
-    <span class="semester">Lab 02 / 10</span>
-  </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 02</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
-  </main>
+
+<body>
+
+<header>
+    <h1>STATS 401</h1>
+    <p>Data Acquisition and Visualization</p>
+</header>
+
+<nav class="lab-nav">
+    <a href="../lab1/index.html">Lab 1</a>
+    <a href="../lab2/index.html">Lab 2</a>
+    <a href="../lab3/index.html">Lab 3</a>
+    <a href="../lab4/index.html">Lab 4</a>
+    <a href="../lab5/index.html">Lab 5</a>
+    <a href="../lab6/index.html">Lab 6</a>
+    <a href="../lab7/index.html">Lab 7</a>
+    <a href="../lab8/index.html">Lab 8</a>
+    <a href="../lab9/index.html">Lab 9</a>
+    <a href="../lab10/index.html">Lab 10</a>
+</nav>
+
+<main>
+    <h2>Lab 2: Multivariate Visualization with D3</h2>
+
+    <p>
+        The first chart follows the in-lab student example. The second chart
+        is the assignment visualization using the required city dataset.
+    </p>
+
+    <h3>Practice Scatterplot (Students Dataset)</h3>
+    <div id="chart"></div>
+
+    <h3>Assignment Visualization (Cities Dataset)</h3>
+    <div id="assignment-chart"></div>
+    <div id="tooltip" class="tooltip"></div>
+
+    <section>
+        <h3>Design Justification</h3>
+        <p>
+            I designed a lollipop-style chart to avoid a standard scatter plot while still
+            making quantitative comparisons clear. I mapped population (ratio) to horizontal
+            position and line length because length and position on a common axis are easy to
+            compare across cities. I mapped region (nominal) to color so viewers can quickly
+            group cities by category. I mapped development level (ordinal) to stroke thickness
+            and opacity, allowing Low, Medium, and High to appear with increasing visual
+            emphasis. I mapped temperature (interval) to circle size at the end of each line,
+            so warmer and cooler cities are easy to distinguish without adding another axis.
+            I also included tooltips with city names and exact values, so viewers can identify
+            each city and inspect details while still seeing broader patterns in one chart.
+        </p>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="lab2.js"></script>
+
 </body>
 </html>
