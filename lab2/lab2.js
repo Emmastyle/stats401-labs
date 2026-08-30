@@ -179,7 +179,7 @@ async function drawCitiesChart() {
 
     svg.append("desc")
         .attr("id", "svg-desc")
-        .text("Population on x-axis, region in color, development level in opacity and stroke, and temperature in bubble size.");
+        .text("Population on the x-axis, region in line color, development level in line style, and temperature in a continuous cool-to-warm endpoint color.");
 
     const x = d3.scaleLinear()
         .domain([0, d3.max(sorted, d => d.population)])
@@ -192,27 +192,10 @@ async function drawCitiesChart() {
         .padding(0.34);
 
     const [tMin, tMax] = d3.extent(sorted, d => d.temp_c);
-    const tempValues = sorted.map(d => d.temp_c).sort(d3.ascending);
-    const tempCut1 = d3.quantileSorted(tempValues, 1 / 3);
-    const tempCut2 = d3.quantileSorted(tempValues, 2 / 3);
-
-    function tempBand(temp) {
-        if (temp <= tempCut1) {
-            return "Cool";
-        }
-        if (temp <= tempCut2) {
-            return "Mild";
-        }
-        return "Warm";
-    }
-
-    const tempShape = d3.scaleOrdinal()
-        .domain(["Cool", "Mild", "Warm"])
-        .range([d3.symbolCircle, d3.symbolSquare, d3.symbolTriangle]);
-
-    const tempShapeSize = d3.scaleLinear()
+    const tempColor = d3.scaleLinear()
         .domain([tMin, tMax])
-        .range([120, 220]);
+        .range(["#2c7bb6", "#d7191c"])
+        .interpolate(d3.interpolateLab);
 
     const regions = d3.groups(sorted, d => d.region);
     const regionBand = svg.append("g");
@@ -274,11 +257,12 @@ async function drawCitiesChart() {
                 .attr("stroke", d3.color(regionColors(d.region)).darker(1).formatHex());
 
             d3.select(this)
-                .select("path")
+                .select(".city-marker")
                 .attr("opacity", 1)
-                .attr("stroke-width", levelStroke(d.development_level) + 1.6)
+                .attr("stroke-width", 2.4)
+                .attr("r", 12)
                 .attr("stroke", "#000000")
-                .attr("fill", d3.color(regionColors(d.region)).darker(1.05).formatHex());
+                .attr("fill", d3.color(tempColor(d.temp_c)).darker(0.55).formatHex());
 
             tooltip
                 .style("opacity", 1)
@@ -305,11 +289,12 @@ async function drawCitiesChart() {
                 .attr("stroke", regionColors(d.region));
 
             d3.select(this)
-                .select("path")
-                .attr("opacity", levelOpacity(d.development_level))
-                .attr("stroke-width", levelStroke(d.development_level))
+                .select(".city-marker")
+                .attr("opacity", 1)
+                .attr("stroke-width", 1.5)
+                .attr("r", 9)
                 .attr("stroke", "#17211d")
-                .attr("fill", regionColors(d.region));
+                .attr("fill", tempColor(d.temp_c));
 
             tooltip.style("opacity", 0);
         });
@@ -325,16 +310,15 @@ async function drawCitiesChart() {
         .attr("opacity", d => levelOpacity(d.development_level))
         .attr("stroke-linecap", "round");
 
-    rows.append("path")
-        .attr("transform", d => `translate(${x(d.population)}, ${y(d.city) + y.bandwidth() / 2})`)
-        .attr("d", d => d3.symbol()
-            .type(tempShape(tempBand(d.temp_c)))
-            .size(tempShapeSize(d.temp_c))())
-        .attr("fill", d => regionColors(d.region))
+    rows.append("circle")
+        .attr("class", "city-marker")
+        .attr("cx", d => x(d.population))
+        .attr("cy", d => y(d.city) + y.bandwidth() / 2)
+        .attr("r", 9)
+        .attr("fill", d => tempColor(d.temp_c))
         .attr("stroke", "#17211d")
-        .attr("stroke-width", d => levelStroke(d.development_level))
-        .attr("stroke-dasharray", d => levelDash(d.development_level))
-        .attr("opacity", d => levelOpacity(d.development_level));
+        .attr("stroke-width", 1.5)
+        .attr("opacity", 1);
 
     const legendX = width - margin.right + 20;
 
@@ -349,7 +333,7 @@ async function drawCitiesChart() {
         .attr("transform", `translate(${legendX}, ${margin.top + 34})`);
     regionLegend.append("text")
         .style("font-size", "12px")
-        .text("Color = Region");
+        .text("Line color = Region");
     const regionItems = regionLegend.selectAll(".region-item")
         .data(regionOrder)
         .join("g")
@@ -392,28 +376,62 @@ async function drawCitiesChart() {
         .attr("transform", `translate(${legendX}, ${margin.top + 280})`);
     tempLegend.append("text")
         .style("font-size", "12px")
-        .text("Shape = Temperature");
+        .text("Point color = Temperature");
+
+    const gradientWidth = 170;
+    const gradientId = "temperature-gradient";
+    const gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", gradientId)
+        .attr("x1", "0%")
+        .attr("x2", "100%");
+
+    gradient.selectAll("stop")
+        .data(d3.range(0, 1.01, 0.1))
+        .join("stop")
+        .attr("offset", d => `${d * 100}%`)
+        .attr("stop-color", d => tempColor(tMin + d * (tMax - tMin)));
+
+    tempLegend.append("rect")
+        .attr("x", 0)
+        .attr("y", 18)
+        .attr("width", gradientWidth)
+        .attr("height", 14)
+        .attr("rx", 2)
+        .attr("fill", `url(#${gradientId})`)
+        .attr("stroke", "#17211d")
+        .attr("stroke-width", 0.8);
+
     const tMid = (tMin + tMax) / 2;
-    const tempItems = tempLegend.selectAll(".temp-item")
-        .data([
-            { label: `Cool (<= ${tempCut1.toFixed(1)}°C, lower third)`, key: "Cool", value: tMin },
-            { label: `Mild (${tempCut1.toFixed(1)}–${tempCut2.toFixed(1)}°C, middle third)`, key: "Mild", value: tMid },
-            { label: `Warm (> ${tempCut2.toFixed(1)}°C, upper third)`, key: "Warm", value: tMax }
-        ])
-        .join("g")
-        .attr("transform", (d, i) => `translate(0, ${24 + i * 34})`);
-    tempItems.append("path")
-        .attr("transform", "translate(10, 0)")
-        .attr("d", d => d3.symbol()
-            .type(tempShape(d.key))
-            .size(tempShapeSize(d.value))())
-        .attr("fill", "#d9d9d9")
-        .attr("stroke", "#17211d");
-    tempItems.append("text")
-        .attr("x", 30)
-        .attr("y", 4)
-        .style("font-size", "12px")
-        .text(d => d.label);
+    const tempLegendScale = d3.scaleLinear()
+        .domain([tMin, tMax])
+        .range([0, gradientWidth]);
+
+    tempLegend.append("g")
+        .attr("transform", "translate(0, 32)")
+        .call(
+            d3.axisBottom(tempLegendScale)
+                .tickValues([tMin, tMid, tMax])
+                .tickFormat(d => `${d.toFixed(1)}°C`)
+                .tickSize(5)
+        )
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll("text").style("font-size", "11px"));
+
+    tempLegend.append("text")
+        .attr("x", 0)
+        .attr("y", 68)
+        .style("font-size", "11px")
+        .attr("fill", "#65706b")
+        .text("cooler");
+
+    tempLegend.append("text")
+        .attr("x", gradientWidth)
+        .attr("y", 68)
+        .attr("text-anchor", "end")
+        .style("font-size", "11px")
+        .attr("fill", "#65706b")
+        .text("warmer");
 }
 
 Promise.all([drawStudentsChart(), drawCitiesChart()]).catch(error => {
