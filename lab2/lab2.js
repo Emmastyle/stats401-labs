@@ -192,14 +192,15 @@ async function drawCitiesChart() {
         .padding(0.34);
 
     const [tMin, tMax] = d3.extent(sorted, d => d.temp_c);
-    const tempCut1 = tMin + (tMax - tMin) / 3;
-    const tempCut2 = tMin + (tMax - tMin) * 2 / 3;
+    const tempValues = sorted.map(d => d.temp_c).sort(d3.ascending);
+    const tempCut1 = d3.quantileSorted(tempValues, 1 / 3);
+    const tempCut2 = d3.quantileSorted(tempValues, 2 / 3);
 
     function tempBand(temp) {
-        if (temp < tempCut1) {
+        if (temp <= tempCut1) {
             return "Cool";
         }
-        if (temp < tempCut2) {
+        if (temp <= tempCut2) {
             return "Mild";
         }
         return "Warm";
@@ -395,9 +396,9 @@ async function drawCitiesChart() {
     const tMid = (tMin + tMax) / 2;
     const tempItems = tempLegend.selectAll(".temp-item")
         .data([
-            { label: `Cool (< ${tempCut1.toFixed(1)}°C)`, key: "Cool", value: tMin },
-            { label: `Mild (${tempCut1.toFixed(1)}–${tempCut2.toFixed(1)}°C)`, key: "Mild", value: tMid },
-            { label: `Warm (>= ${tempCut2.toFixed(1)}°C)`, key: "Warm", value: tMax }
+            { label: `Cool (<= ${tempCut1.toFixed(1)}°C, lower third)`, key: "Cool", value: tMin },
+            { label: `Mild (${tempCut1.toFixed(1)}–${tempCut2.toFixed(1)}°C, middle third)`, key: "Mild", value: tMid },
+            { label: `Warm (> ${tempCut2.toFixed(1)}°C, upper third)`, key: "Warm", value: tMax }
         ])
         .join("g")
         .attr("transform", (d, i) => `translate(0, ${24 + i * 34})`);

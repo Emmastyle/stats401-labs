@@ -34,7 +34,7 @@
       <div class="encoding-guide" aria-label="Visual encoding guide for assignment chart">
         <h3>Visual Encoding Guide</h3>
         <p><strong>Population</strong>: x-position and lollipop line length (farther right means larger population).</p>
-        <p><strong>Temperature (temp_c)</strong>: endpoint shape (Cool = circle, Mild = square, Warm = triangle).</p>
+        <p><strong>Temperature (temp_c)</strong>: endpoint shape using tertile bins from the data (lower third = circle, middle third = square, upper third = triangle).</p>
         <p><strong>Development Level</strong>: line style (Low = dashed line, Medium = thin solid line, High = thick solid line).</p>
         <p><strong>Region</strong>: color categories with explicit legend labels (North, South, East, West).</p>
       </div>
@@ -43,7 +43,7 @@
     <section class="chart-shell lab-note" aria-labelledby="design-title">
       <h2 id="design-title">Design Justification</h2>
       <p>
-        I used a grouped lollipop-style chart to keep the display readable while encoding all four required variables. Population (ratio) is mapped to horizontal position and stem length, so differences in city size can be compared quickly on one axis. Region (nominal) is mapped to color, which naturally supports category grouping and makes regional patterns easy to scan. Temperature in Celsius (interval) is mapped to endpoint shape by three bands (cool, mild, warm), so viewers can quickly compare thermal categories without overloading position channels. Development level (ordinal) is mapped to line style in an ordered way: Low is dashed, Medium is a thin solid line, and High is a thick solid line. City names appear on the y-axis and exact values are available in tooltips, allowing both overview and detailed inspection.
+        I used a grouped lollipop-style chart to keep the display readable while encoding all four required variables. Population (ratio) is mapped to horizontal position and stem length, so differences in city size can be compared quickly on one axis. Region (nominal) is mapped to color, which naturally supports category grouping and makes regional patterns easy to scan. Temperature in Celsius (interval) is mapped to endpoint shape using tertile bins (lower third, middle third, upper third), which keeps category counts balanced and avoids arbitrary fixed cut points. Development level (ordinal) is mapped to line style in an ordered way: Low is dashed, Medium is a thin solid line, and High is a thick solid line. City names appear on the y-axis and exact values are available in tooltips, allowing both overview and detailed inspection.
       </p>
     </section>
     <div id="tooltip" class="tooltip"></div>
