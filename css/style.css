@@ -130,6 +130,27 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 }
 .tooltip strong { color: #17211d; font-weight: 700; }
 
+.dataset-details {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 24px 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.dataset-details div { padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.dataset-details dt { margin-bottom: 6px; color: #65706b; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.dataset-details dd { margin: 0; font-size: 14px; font-weight: 600; }
+.dataset-details a { text-decoration-color: var(--orange); text-underline-offset: 3px; }
+.table-scroll { max-height: 70vh; overflow: auto; margin-top: 20px; border: 1px solid var(--line); }
+#data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#data-table th, #data-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+#data-table th { position: sticky; top: 0; z-index: 1; background: var(--cream); white-space: nowrap; user-select: none; }
+#data-table th:hover, #data-table th:focus, #data-table th.is-sorted { background: var(--orange); color: #fff; outline: none; }
+#data-table tbody tr:nth-child(even) { background: rgba(233, 227, 214, .35); }
+#data-table tbody tr:hover { background: #fae4d9; }
+#data-table td:first-child { min-width: 300px; }
+#data-table td:nth-child(2), #data-table td:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 .placeholder { min-height: calc(100vh - 92px); display: grid; place-items: center; text-align: center; padding: 50px 20px; }
 .placeholder .lab-number { color: var(--orange); font-size: 18px; letter-spacing: .15em; }
 .placeholder h1 { margin: 12px 0; font-size: clamp(64px, 10vw, 120px); }
@@ -152,6 +173,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   .lab-card.featured { grid-column: span 1; }
   .chart-shell { padding: 20px 16px 12px; }
   .chart-key { display: none; }
+  .dataset-details { grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 3 · STATS 401</title>
+  <meta name="description" content="A sortable table of 1,000 public book records collected with Python for STATS 401 Lab 3.">
+  <title>Lab 3 · Web Data Acquisition</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,52 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 03 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 03</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 03 · Web Data Acquisition</p>
+        <h1>Public Book<br><em>Records.</em></h1>
+      </div>
+      <p>This lab uses a responsible Python scraping workflow to acquire structured web data, save it as CSV, and present it in an interactive D3 table.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">Dataset Description</h2>
+          <p>Public catalogue records from a website designed for scraping practice</p>
+        </div>
+        <span class="chart-key">1,000 records</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Dataset</dt><dd>Public Book Records</dd></div>
+        <div><dt>Source</dt><dd><a href="https://books.toscrape.com/">Books to Scrape</a></dd></div>
+        <div><dt>Method</dt><dd>HTML scraping with Python requests + BeautifulSoup</dd></div>
+        <div><dt>Records collected</dt><dd>1,000</dd></div>
+      </dl>
+      <p>Each row represents one book listing and includes its title, price in British pounds, star rating, availability, and source catalogue page. The Python script follows all 50 catalogue pages automatically, waits one second between requests, handles request errors, and saves the resulting dataset as CSV.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="table-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="table-title">Acquired Book Data</h2>
+          <p>Click any column heading to sort ascending; click it again to sort descending.</p>
+        </div>
+        <span id="table-status" class="chart-key" aria-live="polite">Loading data</span>
+      </div>
+      <div class="table-scroll" tabindex="0" aria-label="Scrollable table of public book records">
+        <table id="data-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab3.js"></script>
 </body>
 </html>
