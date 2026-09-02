@@ -37,7 +37,7 @@
         <div><dt>Method</dt><dd>HTML scraping with Python requests + BeautifulSoup</dd></div>
         <div><dt>Records collected</dt><dd>1,000</dd></div>
       </dl>
-      <p>Each row represents one book listing and includes its title, price in British pounds, star rating, availability, and source catalogue page. The Python script follows all 50 catalogue pages automatically, waits one second between requests, handles request errors, and saves the resulting dataset as CSV.</p>
+      <p>Each row represents one book listing and includes its original title, category, price in British pounds, and star rating. The Python script discovers all 50 categories, follows every category page automatically, waits one second between requests, handles request errors, and saves the resulting dataset as CSV. Punctuation such as hashtags, quotation marks, and parentheses is preserved because it is part of the source title.</p>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="table-title">

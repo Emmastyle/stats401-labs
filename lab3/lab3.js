@@ -1,10 +1,9 @@
-const numericColumns = new Set(["price_gbp", "source_page"]);
+const numericColumns = new Set(["price_gbp"]);
 const columnLabels = {
     title: "Title",
+    category: "Category",
     price_gbp: "Price (GBP)",
-    star_rating: "Star Rating",
-    availability: "Availability",
-    source_page: "Source Page"
+    star_rating: "Star Rating"
 };
 
 function compareValues(left, right, column, ascending) {
