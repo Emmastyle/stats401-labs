@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 4 · STATS 401</title>
+  <meta name="description" content="Cleaned Apple Vision Pro tweets visualized with D3 for STATS 401 Lab 4.">
+  <title>Lab 4 · Cleaning Web Data for Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,63 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 04 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 04</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 04 · Cleaning Web Data for Visualization</p>
+        <h1>Tweet Sentiment<br><em>After Cleaning.</em></h1>
+      </div>
+      <p>Raw social-media posts are messy. This lab turns a dirty tweet dataset into tidy, visualization-ready rows, estimates sentiment with a RoBERTa model, and plots sentiment against time and likes.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">Dataset Description</h2>
+          <p>Public Apple Vision Pro posts from X, sampled across the launch window</p>
+        </div>
+        <span class="chart-key">1,211 tweets</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Dataset</dt><dd>Apple Vision Pro Tweets</dd></div>
+        <div><dt>Source</dt><dd><a href="https://huggingface.co/datasets/divyasharma0795/AppleVisionPro_Tweets">Hugging Face</a></dd></div>
+        <div><dt>Records after cleaning</dt><dd>1,211</dd></div>
+        <div><dt>Sentiment model</dt><dd>twitter-roberta-base-sentiment-latest</dd></div>
+      </dl>
+      <p>Each row is one tweet after structured cleaning. The page does not list every tweet; D3 loads the tidy CSV and draws sentiment together with date and likes. Sentiment values are model-generated estimates, not ground-truth labels.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="chart-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="chart-title">Sentiment, Time, and Likes</h2>
+          <p>Each point is a tweet. Hover to read the original text and scores.</p>
+        </div>
+        <span id="chart-status" class="chart-key" aria-live="polite">Loading data</span>
+      </div>
+      <div id="chart" role="img" aria-label="A scatterplot of tweet sentiment over time, with point size showing likes"></div>
+      <div class="encoding-guide" aria-label="Visual encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>Date</strong>: horizontal position from late December 2023 through mid-March 2024.</p>
+        <p><strong>Sentiment score</strong>: vertical position, from more negative (−1) to more positive (+1). The dashed line is a neutral score of 0.</p>
+        <p><strong>Sentiment class</strong>: point color (Negative, Neutral, Positive), taken from the class with the highest RoBERTa probability.</p>
+        <p><strong>Likes</strong>: point size. Larger circles received more likes.</p>
+        <p><strong>Launch</strong>: the vertical marker is 2 February 2024, the U.S. Apple Vision Pro launch date.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="analysis-title">
+      <h2 id="analysis-title">Short Analysis</h2>
+      <p id="analysis-text">
+        This assignment uses 1,211 public Apple Vision Pro tweets from a Hugging Face dataset (MIT license), covering late December 2023 to mid-March 2024. The raw file had duplicate tweet IDs with shifted timestamps, @-prefixed usernames, extra whitespace, and view counts stored as strings. Cleaning dropped empty text, kept the first copy of each ID, parsed timestamps to UTC, converted likes, retweets, and views to numbers, and standardized usernames. Sentiment is a RoBERTa estimate rather than a ground-truth label: twitter-roberta-base-sentiment-latest scores lightly normalized tweet text, and the plotted value is P(positive) minus P(negative). The chart maps date to x, that score to y, predicted class to color, and likes to size, with a line at the 2 February 2024 U.S. launch. Positive posts outnumber negative ones. Tweets with 20 or more likes are more often positive than low-engagement posts, and Friday has the lowest average score.
+      </p>
+    </section>
   </main>
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab4.js"></script>
 </body>
 </html>

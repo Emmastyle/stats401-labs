@@ -1,0 +1,43 @@
+tweet_id,created_at,date,hour,weekday,username,platform,country,tweet_text_raw,text_clean,likes,retweets,sentiment_score,sentiment
+1001,2024-02-01T09:15:00Z,2024-02-01,9,Thursday,alice,Web,United States,Great work @team! Version 2.0 https://example.com is so useful 🔥,great work USER version NUMBER URL useful,124,3,0.9859126259107144,Positive
+1002,2024-01-15T00:00:00Z,2024-01-15,0,Monday,bob,Web,United States,The new dashboard update looks clean and helpful.,new dashboard update look clean helpful,45,1,0.9689426342956722,Positive
+1003,2024-01-15T00:00:00Z,2024-01-15,0,Monday,carol,Web,United States,App crash again after the update. This is terrible.,app crash update terrible,12,0,-0.9300356237217784,Negative
+1004,2024-02-03T14:30:00Z,2024-02-03,14,Saturday,dave,Mobile,United States,Why does the dashboard freeze every time I open reports?,dashboard freeze every time open report,1200,22,-0.6574353789910674,Negative
+1005,2024-02-04T18:05:00Z,2024-02-04,18,Sunday,erin,iOS,United States,Trying the new filter today. Not sure yet.,trying new filter today sure yet,8,0,-0.0162919647991657,Neutral
+1006,2024-02-05T11:11:11Z,2024-02-05,11,Monday,frank,iOS,United Kingdom,Love the dark mode 😍 #dashboard https://viz.example.org/app,love dark mode dashboard URL,67,5,0.9798008364159614,Positive
+1007,2024-02-06T08:00:00Z,2024-02-06,8,Tuesday,grace,Android,United Kingdom,Version 3 shipped! 10 new charts and better labels.,version NUMBER shipped NUMBER new chart better label,17,4,0.9651025112252682,Positive
+1008,2024-02-07T21:45:00Z,2024-02-07,21,Wednesday,hank,Android,Canada,Another software crash. Great. Just great.,another software crash great great,-5,0,-0.6327134743332863,Negative
+1009,2024-02-08T00:00:00Z,2024-02-08,0,Thursday,ina,Mobile,Canada,Logged 3 hours on the dashboard. Fine I guess.,logged NUMBER hour dashboard fine guess,0,0,0.2921721432358026,Neutral
+1010,2024-08-02T16:20:00Z,2024-08-02,16,Friday,jake,Web,United Kingdom,Really useful export button @productteam #analytics,really useful export button USER analytics,33,2,0.9591485224664212,Positive
+1012,2024-02-10T12:00:00Z,2024-02-10,12,Saturday,leo,iOS,United States,Wow this update is actually fast,wow update actually fast,21,1,0.9739882834255696,Positive
+1014,2024-02-12T19:19:19Z,2024-02-12,19,Monday,nina,Web,United Kingdom,Saw 4 mentions of the dashboard in class today.,saw NUMBER mention dashboard class today,5,0,0.0363989137113094,Neutral
+1015,2024-02-13T03:03:03Z,2024-02-13,3,Tuesday,omar,Mobile,Canada,Best visualization tool I used in 2024. Thanks @design!,best visualization tool used NUMBER thanks USER,88,9,0.9848444797098636,Positive
+1016,2024-02-13T22:10:00Z,2024-02-13,22,Tuesday,pat,iOS,Canada,The crash report is useless. Fix the dashboard please.,crash report useless fix dashboard please,2,0,-0.9416661667637528,Negative
+1017,2024-02-14T10:10:10Z,2024-02-14,10,Wednesday,quinn,Android,United States,Shipped my first D3 chart with this data 🎉 #dataviz,shipped first chart data dataviz,54,6,0.9455444653285668,Positive
+1018,2024-02-15T15:15:15Z,2024-02-15,15,Thursday,riley,Web,United States,Reading the docs at www.example.com/help before lab.,reading doc URL lab,3,0,0.0729463323950767,Neutral
+1019,2024-02-16T08:08:08Z,2024-02-16,8,Friday,sam,Web,United Kingdom,Retweets metric shows -1. That cannot be right.,retweets metric show NUMBER right,11,0,-0.7498753638938069,Negative
+1020,2024-02-16T20:00:00Z,2024-02-16,20,Friday,tess,iOS,United Kingdom,Update 1.5 made filtering 2x faster. Impressive!,update NUMBER made filtering faster impressive,76,8,0.9720822190865874,Positive
+1022,2024-02-18T06:06:06Z,2024-02-18,6,Sunday,vic,Mobile,United States,Follow @stats401 for more dashboard tips #lab4,follow USER dashboard tip,19,2,0.356992014683783,Neutral
+1023,2024-02-19T13:45:00Z,2024-02-19,13,Monday,wes,Web,Canada,"The color scale is okay, nothing special.",color scale okay nothing special,6,0,0.301315326243639,Neutral
+1024,2024-02-20T09:00:00Z,2024-02-20,9,Tuesday,xena,iOS,Canada,So many useful templates. Saved me 20 minutes.,many useful template saved NUMBER minute,41,3,0.9666299135424196,Positive
+1025,2024-02-21T11:11:00Z,2024-02-21,11,Wednesday,yara,Android,United States,Hashtags and mentions broke the search box 😭,hashtags mention broke search box,13,1,-0.7279001828283072,Negative
+1026,2024-02-22T16:40:00Z,2024-02-22,16,Thursday,zion,Web,United States,Absolutely love this new update!,absolutely love new update,99,12,0.9823401416651903,Positive
+1027,2024-02-22T00:00:00Z,2024-02-22,0,Thursday,ada,Mobile,United Kingdom,Number of likes displayed as unknown today.,number like displayed unknown today,17,0,-0.1377656525000929,Neutral
+1028,2024-02-23T12:12:12Z,2024-02-23,12,Friday,ben,iOS,United Kingdom,Crash on launch. 0 stars until this is fixed.,crash launch NUMBER star fixed,7,4,-0.8466483131051064,Negative
+1029,2024-02-24T18:30:00Z,2024-02-24,18,Saturday,cia,Android,United States,The dashboard is finally useful for weekly reports.,dashboard finally useful weekly report,28,2,0.9227207242511212,Positive
+1031,2024-02-26T14:14:14Z,2024-02-26,14,Monday,eve,Web,United States,Check www.example.com for the 5.0 release notes.,check URL NUMBER release note,16,1,0.0654261531308293,Neutral
+1032,2024-02-26T00:00:00Z,2024-02-26,0,Monday,finn,iOS,Canada,"Opened the app, closed the app. That is all.",opened app closed app,2,0,0.0175830498337745,Neutral
+1033,2024-02-27T19:00:00Z,2024-02-27,19,Tuesday,gia,Android,Canada,Tooltip delay is gone in version 4. Nice work @dev.,tooltip delay gone version NUMBER nice work USER,37,3,0.9305187314748764,Positive
+1034,2024-02-28T08:20:00Z,2024-02-28,8,Wednesday,hugo,Mobile,United Kingdom,Malformed strings everywhere. Dates won't parse.,malformed string everywhere date wo parse,18,2,-0.9053583685308696,Negative
+1035,2024-02-29T10:00:00Z,2024-02-29,10,Thursday,ivy,Web,United Kingdom,Leap day deploy worked. Charts are live 🚀,leap day deploy worked chart live,63,7,0.9007034536916763,Positive
+1036,2024-03-01T11:30:00Z,2024-03-01,11,Friday,jules,iOS,United States,"I expected this to be terrible, and it was.",expected terrible,10,1,-0.9274626607075334,Negative
+1037,2024-03-02T00:00:00Z,2024-03-02,0,Saturday,kip,Android,United States,"I expected this to be terrible, but it was actually amazing.",expected terrible actually amazing,150,11,-0.0206599235534667,Negative
+1038,2024-03-03T09:09:09Z,2024-03-03,9,Sunday,liv,Web,Canada,Meeting notes: 12 students used the dashboard.,meeting note NUMBER student used dashboard,4,0,0.063343193847686,Neutral
+1039,2024-03-04T13:13:13Z,2024-03-04,13,Monday,mo,Mobile,Canada,Export to CSV is now 3 seconds. Huge win.,export csv NUMBER second huge win,22,2,0.9539973526261748,Positive
+1040,2024-03-05T17:50:00Z,2024-03-05,17,Tuesday,nia,iOS,United Kingdom,"Do not like this movie. Wait, this update. Same energy.",like movie wait update energy,8,0,-0.9386952281929553,Negative
+1041,2024-03-06T12:00:00Z,2024-03-06,12,Wednesday,oak,Android,United States,First copy of tweet 1041 about a useful dashboard update.,first copy tweet NUMBER useful dashboard update,15,1,0.7942499588243663,Positive
+1042,2024-03-07T08:08:08Z,2024-03-07,8,Thursday,pia,Web,United States,Need more examples with numbers 100 and 200 in tweets.,need example number NUMBER NUMBER tweet,1050,5,0.0046439245343208,Neutral
+1043,2024-03-07T19:40:00Z,2024-03-07,19,Thursday,raj,Mobile,United States,Great. Another software crash.,great another software crash,25,6,-0.8192393705248833,Negative
+1044,2024-03-08T10:10:10Z,2024-03-08,10,Friday,sky,iOS,United Kingdom,I like this movie. Also I like this dashboard a lot.,like movie also like dashboard lot,31,2,0.9560525785200298,Positive
+1045,2024-03-09T11:11:11Z,2024-03-09,11,Saturday,tao,Android,United Kingdom,I do not like this movie. The dashboard is worse.,like movie dashboard worse,17,3,-0.9511987948790191,Negative
+1046,2024-03-10T16:16:16Z,2024-03-10,16,Sunday,uma2,Web,Canada,"Tokenization test: running, ran, runs. Lemmatize me.",tokenization test running ran run lemmatize,9,0,0.1619409173727035,Neutral

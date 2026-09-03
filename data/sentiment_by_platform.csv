@@ -1,0 +1,12 @@
+platform,sentiment,count
+Android,Negative,4
+Android,Positive,5
+Mobile,Negative,3
+Mobile,Neutral,3
+Mobile,Positive,2
+Web,Negative,2
+Web,Neutral,7
+Web,Positive,5
+iOS,Negative,4
+iOS,Neutral,2
+iOS,Positive,5

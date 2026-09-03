@@ -87,6 +87,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 #chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
 #students-chart { width: 100%; min-height: 440px; overflow-x: auto; }
 #students-chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+.tweet-point { cursor: pointer; }
 .bar { fill: var(--orange); transition: fill .2s, opacity .2s; }
 .bar:hover { fill: var(--green); }
 .bar-score { fill: var(--ink); font-size: 15px; font-weight: 600; }
@@ -116,6 +117,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 }
 .tooltip {
   position: absolute;
+  max-width: 320px;
   background: #ffffff;
   color: #17211d;
   border: 1px solid #aaa;
