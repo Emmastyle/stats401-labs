@@ -190,28 +190,69 @@ async function drawChart() {
         .style("font-weight", "600")
         .text("Likes");
 
-    const likeTicks = [
-        0,
-        Math.round(d3.quantile(data.map(d => d.likes).sort(d3.ascending), 0.75)),
-        d3.max(data, d => d.likes)
-    ];
-    const uniqueTicks = Array.from(new Set(likeTicks.filter(value => Number.isFinite(value))));
-    const likeItems = legend.selectAll(".like-item")
-        .data(uniqueTicks)
-        .join("g")
-        .attr("transform", (d, i) => `translate(0, ${156 + i * 30})`);
+    const maxLikes = d3.max(data, d => d.likes);
+    const minRadius = likesRadius(0, sizeScale);
+    const maxRadius = likesRadius(maxLikes, sizeScale);
+    const sizeSteps = 8;
+    const sizeRadii = d3.range(sizeSteps).map(index => (
+        minRadius + (maxRadius - minRadius) * (index / (sizeSteps - 1))
+    ));
 
-    likeItems.append("circle")
-        .attr("cx", 10)
-        .attr("r", d => likesRadius(d, sizeScale))
-        .attr("fill", "none")
-        .attr("stroke", "#17211d");
+    let bubbleX = sizeRadii[0];
+    const bubbles = sizeRadii.map((radius, index) => {
+        if (index > 0) {
+            bubbleX += (sizeRadii[index - 1] + radius) * 0.45;
+        }
+        return { radius, x: bubbleX };
+    });
 
-    likeItems.append("text")
-        .attr("x", 28)
-        .attr("y", 4)
-        .style("font-size", "12px")
-        .text(d => d.toLocaleString());
+    const sizeLegend = legend.append("g")
+        .attr("transform", "translate(4, 148)");
+
+    sizeLegend.selectAll("circle")
+        .data(bubbles)
+        .join("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", maxRadius)
+        .attr("r", d => d.radius)
+        .attr("fill", "#3b6755")
+        .attr("fill-opacity", 0.16)
+        .attr("stroke", "#3b6755")
+        .attr("stroke-opacity", 0.85)
+        .attr("stroke-width", 1);
+
+    const axisY = maxRadius * 2 + 8;
+    const firstBubble = bubbles[0];
+    const lastBubble = bubbles[bubbles.length - 1];
+
+    sizeLegend.append("line")
+        .attr("x1", firstBubble.x)
+        .attr("x2", lastBubble.x)
+        .attr("y1", axisY)
+        .attr("y2", axisY)
+        .attr("stroke", "#17211d")
+        .attr("stroke-width", 0.8);
+
+    [
+        { x: firstBubble.x, label: "0", anchor: "start" },
+        { x: lastBubble.x, label: maxLikes.toLocaleString(), anchor: "end" }
+    ].forEach(tick => {
+        sizeLegend.append("line")
+            .attr("x1", tick.x)
+            .attr("x2", tick.x)
+            .attr("y1", axisY)
+            .attr("y2", axisY + 4)
+            .attr("stroke", "#17211d")
+            .attr("stroke-width", 0.8);
+
+        sizeLegend.append("text")
+            .attr("x", tick.x)
+            .attr("y", axisY + 16)
+            .attr("text-anchor", tick.anchor)
+            .style("font-size", "11px")
+            .attr("fill", "#65706b")
+            .text(tick.label);
+    });
 }
 
 drawChart().catch(error => {
