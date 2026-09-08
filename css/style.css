@@ -83,8 +83,25 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .chart-heading p { margin: 5px 0 0; color: #65706b; font-size: 13px; }
 .chart-key { display: flex; align-items: center; gap: 8px; color: #65706b; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
 .chart-key::before { content: ""; width: 10px; height: 10px; background: var(--orange); }
-#chart { width: 100%; min-height: 440px; overflow-x: auto; }
-#chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+#chart,
+#assignment-chart,
+#tutorial-matrix,
+#matrix { width: 100%; min-height: 440px; overflow-x: auto; }
+#chart svg,
+#assignment-chart svg,
+#tutorial-matrix svg,
+#matrix svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+#tutorial-matrix,
+#matrix { min-height: 320px; }
+.network-node { cursor: grab; }
+.network-node:active { cursor: grabbing; }
+.questions-scroll { max-height: none; }
+.questions-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.questions-table th,
+.questions-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.questions-table th { background: var(--cream); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.questions-table td:first-child { font-weight: 600; min-width: 180px; }
+.questions-table tbody tr:nth-child(even) { background: rgba(233, 227, 214, .35); }
 #students-chart { width: 100%; min-height: 440px; overflow-x: auto; }
 #students-chart svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
 .tweet-point { cursor: pointer; }
@@ -97,6 +114,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .lab-note { margin-top: 24px; }
 .lab-note h2 { margin: 0 0 12px; font-size: 28px; }
 .lab-note p { margin: 0; max-width: 980px; color: #33413b; line-height: 1.7; font-size: 15px; }
+.lab-note code { font-size: 13px; background: var(--cream); padding: 1px 5px; border-radius: 3px; }
 .encoding-guide {
   margin-top: 14px;
   padding: 14px 16px;

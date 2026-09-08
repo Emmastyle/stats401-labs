@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 5 · STATS 401</title>
+  <meta name="description" content="Interactive force-directed network and adjacency matrix visualizations for STATS 401 Lab 5.">
+  <title>Lab 5 · Interactive Network Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,190 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 05 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 05</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 05 · Interactive Network Visualization</p>
+        <h1>Stations,<br><em>linked.</em></h1>
+      </div>
+      <p>This page first builds a small force-directed collaboration network, then uses the same techniques on a 50-station transit system shown as both a node-link diagram and an adjacency matrix.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="tutorial-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="tutorial-title">Guided Example: University Collaboration</h2>
+          <p>Tasks 1–15. Ten people, three units, and three kinds of professional ties.</p>
+        </div>
+        <span class="chart-key">10 nodes · 15 links</span>
+      </div>
+      <div id="chart" role="img" aria-label="Force-directed collaboration network of ten university project members"></div>
+      <div class="encoding-guide" aria-label="Tutorial encoding guide">
+        <h3>Tutorial encodings</h3>
+        <p><strong>activity_count</strong>: node size (square-root scale).</p>
+        <p><strong>group</strong>: node color (Research, Design, Engineering).</p>
+        <p><strong>weight</strong>: link width.</p>
+        <p><strong>type</strong>: link color; communication ties are dashed.</p>
+        <p>Drag a node to reposition it. Hover to highlight neighbors and read a tooltip.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="tutorial-matrix-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="tutorial-matrix-title">Guided Example: Adjacency Matrix</h2>
+          <p>Task 16. The same ten people as rows and columns; a filled cell is a tie.</p>
+        </div>
+        <span class="chart-key">10 × 10 matrix</span>
+      </div>
+      <div id="tutorial-matrix" role="img" aria-label="Adjacency matrix of the university collaboration network"></div>
+      <div class="encoding-guide">
+        <h3>Matrix encodings</h3>
+        <p><strong>Cell position</strong>: source and target people.</p>
+        <p><strong>Fill</strong>: a collaboration, communication, or advice tie.</p>
+        <p><strong>Opacity</strong>: relationship weight. Empty cells stay light gray.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">1. Dataset Description</h2>
+          <p>A synthetic urban transit system with five districts and 50 direct connections</p>
+        </div>
+        <span class="chart-key">50 stations · 50 routes</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Nodes</dt><dd>lab5_assignment_stations.csv</dd></div>
+        <div><dt>Links</dt><dd>lab5_assignment_routes.csv</dd></div>
+        <div><dt>Districts</dt><dd>Central, North, South, East, West</dd></div>
+        <div><dt>Network</dt><dd>Undirected transit connections</dd></div>
+      </dl>
+      <p>Each node is a station. <code>district</code> is its administrative area, <code>daily_passengers</code> is approximate daily volume, and <code>station_type</code> is Local, Transfer, or Terminal. Each link is a direct ride: <code>travel_time_min</code> is the time between the pair, and <code>route_type</code> is Metro, Express, or Shuttle. A link means passengers can travel between those two stations without changing to another connection first. The network is treated as undirected.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="network-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="network-title">2. Node-Link Visualization</h2>
+          <p>Drag stations to untangle the layout. Hover to isolate neighbors.</p>
+        </div>
+        <span id="network-status" class="chart-key" aria-live="polite">Loading data</span>
+      </div>
+      <div id="assignment-chart" role="img" aria-label="Force-directed urban transit network of 50 stations"></div>
+      <div class="encoding-guide" aria-label="Assignment node-link encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>district</strong>: node color, plus a weak geographic force that keeps each district loosely clustered.</p>
+        <p><strong>daily_passengers</strong>: node size on a square-root scale.</p>
+        <p><strong>station_type</strong>: node shape (circle = Local, diamond = Transfer, square = Terminal).</p>
+        <p><strong>travel_time_min</strong>: link width. Longer direct rides are thicker so slow connections stay visible.</p>
+        <p><strong>route_type</strong>: link color; Shuttle routes are dashed.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="network-design-title">
+      <h2 id="network-design-title">3. Node-Link Design Description</h2>
+      <p id="network-design-text">
+        District is mapped to node color, and a weak geographic force keeps each district loosely clustered, so the view behaves a bit like a city map. Daily passenger volume uses a square-root size scale: busy stations read as heavier without letting the largest hubs erase smaller stops. Station type uses shape—circle for Local, diamond for Transfer, square for Terminal—so role does not compete with district color. Travel time is mapped to link width so the slowest direct rides become the most salient; route type uses link color, with dashed strokes for Shuttles. Dragging untangles crossings, hover highlighting isolates a station’s neighbors, and tooltips name every station and its attributes.
+      </p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="matrix-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="matrix-title">4. Adjacency Matrix</h2>
+          <p>Rows and columns are stations, ordered by district and then by station type.</p>
+        </div>
+        <span class="chart-key">50 × 50 matrix</span>
+      </div>
+      <div id="matrix" role="img" aria-label="Adjacency matrix of the urban transit network, ordered by district"></div>
+      <div class="encoding-guide" aria-label="Assignment matrix encoding guide">
+        <h3>Matrix encodings</h3>
+        <p><strong>Row / column</strong>: one station. Order is district, then Transfer → Local → Terminal.</p>
+        <p><strong>Filled cell</strong>: a direct connection. Empty cells stay light gray.</p>
+        <p><strong>Cell color</strong>: route type. <strong>Opacity</strong>: travel time (darker = longer).</p>
+        <p><strong>Label color</strong>: district. <strong>Label mark</strong>: station type (Tf = Transfer, L = Local, Te = Terminal).</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="matrix-design-title">
+      <h2 id="matrix-design-title">5. Matrix Design Description</h2>
+      <p id="matrix-design-text">
+        The matrix uses the same stations as rows and columns, ordered by district and then by station type. Intra-district routes form block-diagonal clusters; inter-district bridges appear as off-block cells. A filled cell is a direct connection, cell color encodes route type, and opacity encodes travel time (darker means longer). Labels use district color, with a small shape mark for station type. Passenger volume is omitted here so the grid stays readable; volume is left to the node-link view.
+      </p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="questions-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="questions-title">6. Network Questions and Findings</h2>
+          <p>Each answer comes from the visualizations above, not from reading the CSV alone.</p>
+        </div>
+      </div>
+      <div class="table-scroll questions-scroll">
+        <table class="questions-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Answerable?</th>
+              <th>Best view</th>
+              <th>Encoding / interaction</th>
+              <th>Observation from the visualization</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Which stations appear central in the network?</td>
+              <td>Well</td>
+              <td>Node-link; matrix supports it</td>
+              <td>How many links meet a node; hover highlighting; diamond transfer marks at cluster centers</td>
+              <td>Station 5, the Central Transfer, is the clearest hub: many links leave it toward every district, and hovering it lights up neighbors on all sides. Station 25 is the next most connected hub. In the matrix, Station 5’s row also shows more filled cells than a typical local stop.</td>
+            </tr>
+            <tr>
+              <td>2. Which districts are strongly connected to one another?</td>
+              <td>Well</td>
+              <td>Both, especially the ordered matrix</td>
+              <td>District-block ordering; off-block cells; inter-district link colors in the node-link view</td>
+              <td>Central is the bridge district. The matrix shows filled cells from the Central block into North, South, East, and West. North and South also share a direct Express cell. East and West have no direct off-block cell between them; they meet through Central.</td>
+            </tr>
+            <tr>
+              <td>3. Where are transfer or terminal stations located in the topology?</td>
+              <td>Well</td>
+              <td>Node-link</td>
+              <td>Shape (diamond vs square) plus position after the force layout settles</td>
+              <td>Transfer diamonds sit at the center of each district cluster (Stations 5, 8, 15, 18, 25, 35, and 45). Terminal squares sit at the outer ends of dashed Shuttle links and keep a single connection. The matrix marks type beside each label, but the leaf-versus-hub geometry is much clearer in the node-link view.</td>
+            </tr>
+            <tr>
+              <td>4. Which stations have high passenger volume?</td>
+              <td>Well in the node-link view; not easily in the matrix</td>
+              <td>Node-link</td>
+              <td>Node size</td>
+              <td>Station 5 is the largest node. Stations 15, 25, and 2 are also among the highest-volume stations — Station 2 stands out because it is a large Local circle, not a Transfer diamond. I did not encode volume in the matrix, so this question is difficult there on purpose.</td>
+            </tr>
+            <tr>
+              <td>5. Where are the longest direct travel-time connections?</td>
+              <td>Well</td>
+              <td>Both</td>
+              <td>Link width in the node-link view; cell opacity in the matrix</td>
+              <td>The thickest lines and darkest cells are Station 30–29 (a long peripheral Shuttle), Station 15–25 (a North–South Express), Station 20–19 (another outer Shuttle), and Station 5–45 (a Central–West Express). Long Shuttles sit at the edge of a district; long Express links cross districts.</td>
+            </tr>
+            <tr>
+              <td>6. Are particular route types concentrated in particular parts of the network?</td>
+              <td>Well</td>
+              <td>Both</td>
+              <td>Link / cell color; dashed Shuttle strokes; district blocks</td>
+              <td>Metro dominates the interior of each district block as short spokes into the local hub. Express appears only on a few inter-district bridges (Central–North, Central–West, and North–South). Shuttle is concentrated on the outer Terminal connections, visible as dashed edges at the periphery and as muted cells near the edges of each district block.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab5.js"></script>
 </body>
 </html>

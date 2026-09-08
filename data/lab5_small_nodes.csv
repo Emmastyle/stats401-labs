@@ -1,0 +1,11 @@
+id,name,group,activity_count,level
+n1,Alice,Research,42,1
+n2,Bob,Research,31,2
+n3,Carol,Design,28,2
+n4,David,Design,22,3
+n5,Eva,Engineering,38,1
+n6,Frank,Engineering,19,3
+n7,Grace,Research,25,2
+n8,Helen,Design,33,1
+n9,Ivan,Engineering,16,4
+n10,Julia,Research,21,3
