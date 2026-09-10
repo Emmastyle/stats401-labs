@@ -371,8 +371,39 @@ function drawAssignment(nodes, links) {
     const height = 740;
     const plotWidth = 820;
 
+    // Identify stations that never occur in the route table. They still take
+    // part in the district and collision forces, so they settle naturally near
+    // their district while remaining visibly disconnected from every route.
+    const linkedIds = new Set(
+        links.flatMap(link => [endpointId(link.source), endpointId(link.target)])
+    );
+    const isolatedNodes = nodes.filter(node => !linkedIds.has(node.id));
+    const isolatedIds = new Set(isolatedNodes.map(node => node.id));
+    const isIsolated = node => isolatedIds.has(node.id);
+
+    // Distribute disconnected stations around the network perimeter. This
+    // keeps all five visible without collecting them in a separate row.
+    const isolatedTargets = new Map();
+    const isolatedByDistrict = d3.group(isolatedNodes, d => d.district);
+    const perimeterTargets = {
+        North: index => [350 + index * 120, 70],
+        South: index => [310 + index * 200, height - 60],
+        East: index => [plotWidth - 55, 310 + index * 120],
+        West: index => [55, 310 + index * 120],
+        Central: index => [75, 220 + index * 140]
+    };
+
+    isolatedByDistrict.forEach((districtNodes, district) => {
+        districtNodes.forEach((node, index) => {
+            const target = perimeterTargets[district](index);
+            isolatedTargets.set(node.id, target);
+            node.x = target[0];
+            node.y = target[1];
+        });
+    });
+
     d3.select("#network-status")
-        .text(`${nodes.length} stations · ${links.length} routes`);
+        .text(`${nodes.length} stations · ${links.length} routes · ${isolatedNodes.length} isolated`);
 
     const sizeScale = d3.scaleSqrt()
         .domain(d3.extent(nodes, d => d.daily_passengers))
@@ -431,11 +462,19 @@ function drawAssignment(nodes, links) {
         )
         .force(
             "x",
-            d3.forceX(d => districtCenters[d.district][0]).strength(0.12)
+            d3.forceX(d => (
+                isIsolated(d)
+                    ? isolatedTargets.get(d.id)[0]
+                    : districtCenters[d.district][0]
+            )).strength(d => (isIsolated(d) ? 0.7 : 0.12))
         )
         .force(
             "y",
-            d3.forceY(d => districtCenters[d.district][1]).strength(0.12)
+            d3.forceY(d => (
+                isIsolated(d)
+                    ? isolatedTargets.get(d.id)[1]
+                    : districtCenters[d.district][1]
+            )).strength(d => (isIsolated(d) ? 0.7 : 0.12))
         );
 
     const link = svg.append("g")
@@ -523,6 +562,7 @@ function drawAssignment(nodes, links) {
                     Daily passengers: ${d.daily_passengers.toLocaleString()}
                     <br>
                     Type: ${d.station_type}
+                    ${isIsolated(d) ? "<br><strong>No direct routes</strong>" : ""}
                 `);
         })
         .on("mousemove.tooltip", moveTooltip)
