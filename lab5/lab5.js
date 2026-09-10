@@ -8,12 +8,6 @@ const districtColors = {
     West: "#7a4e7d"
 };
 
-const routeColors = {
-    Metro: "#17211d",
-    Express: "#e8582a",
-    Shuttle: "#8a8174"
-};
-
 const typeSymbols = {
     Local: d3.symbolCircle,
     Transfer: d3.symbolDiamond,
@@ -21,7 +15,6 @@ const typeSymbols = {
 };
 
 const districtOrder = ["Central", "North", "South", "East", "West"];
-const typeOrder = ["Transfer", "Local", "Terminal"];
 const typeAbbrev = {
     Local: "L",
     Transfer: "Tf",
@@ -110,7 +103,7 @@ function drawTutorial(nodes, links) {
         .text("University collaboration force-directed network");
 
     const groups = Array.from(new Set(nodes.map(d => d.group)));
-    const linkTypes = Array.from(new Set(links.map(d => d.type)));
+    const linkTypes = ["collaboration", "communication", "advice"];
 
     const sizeScale = d3.scaleSqrt()
         .domain(d3.extent(nodes, d => d.activity_count))
@@ -198,6 +191,32 @@ function drawTutorial(nodes, links) {
         label
             .attr("x", d => d.x)
             .attr("y", d => d.y);
+    });
+
+    const tutorialLegend = svg.append("g")
+        .attr("transform", "translate(24, 28)");
+
+    tutorialLegend.append("text")
+        .attr("font-size", 12)
+        .attr("font-weight", 600)
+        .text("Link type");
+
+    linkTypes.forEach((type, i) => {
+        const row = tutorialLegend.append("g")
+            .attr("transform", `translate(0, ${22 + i * 18})`);
+        row.append("line")
+            .attr("x1", 0)
+            .attr("x2", 28)
+            .attr("y1", 0)
+            .attr("y2", 0)
+            .attr("stroke", linkColorScale(type))
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", type === "communication" ? "5,4" : null);
+        row.append("text")
+            .attr("x", 36)
+            .attr("y", 4)
+            .attr("font-size", 12)
+            .text(type);
     });
 
     node.call(
@@ -363,6 +382,11 @@ function drawAssignment(nodes, links) {
         .domain(d3.extent(links, d => d.travel_time_min))
         .range([1, 6]);
 
+    const routeTypes = ["Metro", "Express", "Shuttle"];
+    const linkColorScale = d3.scaleOrdinal()
+        .domain(routeTypes)
+        .range(d3.schemeSet2);
+
     const svg = d3.select("#assignment-chart")
         .append("svg")
         .attr("viewBox", `0 0 ${width} ${height}`)
@@ -419,7 +443,7 @@ function drawAssignment(nodes, links) {
         .selectAll("line")
         .data(links)
         .join("line")
-        .attr("stroke", d => routeColors[d.route_type])
+        .attr("stroke", d => linkColorScale(d.route_type))
         .attr("stroke-opacity", 0.7)
         .attr("stroke-width", d => linkWidthScale(d.travel_time_min))
         .attr("stroke-dasharray", d => (
@@ -516,11 +540,11 @@ function drawAssignment(nodes, links) {
         .on("mousemove.tooltip", moveTooltip)
         .on("mouseout.tooltip", hideTooltip);
 
-    drawAssignmentLegend(svg, sizeScale, linkWidthScale, width, height);
-    drawAssignmentMatrix(nodes, links);
+    drawAssignmentLegend(svg, sizeScale, linkWidthScale, linkColorScale, width, height);
+    drawAssignmentMatrix(nodes, links, linkColorScale);
 }
 
-function drawAssignmentLegend(svg, sizeScale, linkWidthScale, width, height) {
+function drawAssignmentLegend(svg, sizeScale, linkWidthScale, linkColorScale, width, height) {
     const legend = svg.append("g")
         .attr("transform", `translate(${width - 250}, 36)`);
 
@@ -599,7 +623,7 @@ function drawAssignmentLegend(svg, sizeScale, linkWidthScale, width, height) {
         .attr("font-weight", 600)
         .text("Route type");
 
-    Object.keys(routeColors).forEach((type, i) => {
+    ["Metro", "Express", "Shuttle"].forEach((type, i) => {
         const row = legend.append("g")
             .attr("transform", `translate(0, ${404 + i * 20})`);
         row.append("line")
@@ -607,7 +631,7 @@ function drawAssignmentLegend(svg, sizeScale, linkWidthScale, width, height) {
             .attr("x2", 28)
             .attr("y1", 0)
             .attr("y2", 0)
-            .attr("stroke", routeColors[type])
+            .attr("stroke", linkColorScale(type))
             .attr("stroke-width", 3)
             .attr("stroke-dasharray", type === "Shuttle" ? "5,4" : null);
         row.append("text")
@@ -648,18 +672,10 @@ function drawAssignmentLegend(svg, sizeScale, linkWidthScale, width, height) {
         .text("Numbers on nodes are station IDs.");
 }
 
-function drawAssignmentMatrix(nodes, links) {
-    const ordered = nodes.slice().sort((a, b) => {
-        const districtDiff = districtOrder.indexOf(a.district) - districtOrder.indexOf(b.district);
-        if (districtDiff !== 0) {
-            return districtDiff;
-        }
-        const typeDiff = typeOrder.indexOf(a.station_type) - typeOrder.indexOf(b.station_type);
-        if (typeDiff !== 0) {
-            return typeDiff;
-        }
-        return a.id.localeCompare(b.id, undefined, { numeric: true });
-    });
+function drawAssignmentMatrix(nodes, links, linkColorScale) {
+    const ordered = nodes.slice().sort((a, b) => (
+        Number(a.id.replace("s", "")) - Number(b.id.replace("s", ""))
+    ));
 
     const matrixData = [];
     ordered.forEach(rowNode => {
@@ -707,7 +723,7 @@ function drawAssignmentMatrix(nodes, links) {
         .attr("y", d => matrixY(d.row))
         .attr("width", matrixX.bandwidth())
         .attr("height", matrixY.bandwidth())
-        .attr("fill", d => (d.weight > 0 ? routeColors[d.type] : "#f3f3f3"))
+        .attr("fill", d => (d.weight > 0 ? linkColorScale(d.type) : "#f3f3f3"))
         .attr("fill-opacity", d => (d.weight > 0 ? opacityScale(d.weight) : 1));
 
     cells
@@ -757,22 +773,6 @@ function drawAssignmentMatrix(nodes, links) {
         })
         .text(d => `${typeAbbrev[d.station_type]} ${d.id.replace("s", "")}`);
 
-    const blockStarts = districtOrder.map(district => (
-        ordered.find(d => d.district === district)
-    ));
-
-    blockStarts.forEach(station => {
-        if (!station) {
-            return;
-        }
-        matrixGroup.append("text")
-            .attr("x", matrixX(station.id))
-            .attr("y", matrixSize + 28)
-            .attr("font-size", 11)
-            .attr("font-weight", 600)
-            .attr("fill", districtColors[station.district])
-            .text(station.district);
-    });
 }
 
 Promise.all([
