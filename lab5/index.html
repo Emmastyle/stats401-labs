@@ -54,8 +54,8 @@
       <div class="encoding-guide">
         <h3>Matrix encodings</h3>
         <p><strong>Cell position</strong>: source and target people.</p>
-        <p><strong>Fill</strong>: a collaboration, communication, or advice tie.</p>
-        <p><strong>Opacity</strong>: relationship weight. Empty cells stay light gray.</p>
+        <p><strong>Fill</strong>: steelblue if a tie exists; otherwise light gray. Tie type is in the tooltip, not in the fill.</p>
+        <p><strong>Opacity</strong>: relationship weight. Darker blue is a stronger tie.</p>
       </div>
     </section>
 
@@ -73,7 +73,7 @@
         <div><dt>Districts</dt><dd>Central, North, South, East, West</dd></div>
         <div><dt>Network</dt><dd>Undirected transit connections</dd></div>
       </dl>
-      <p>Each node is a station. <code>district</code> is its administrative area, <code>daily_passengers</code> is approximate daily volume, and <code>station_type</code> is Local, Transfer, or Terminal. Each link is a direct ride: <code>travel_time_min</code> is the time between the pair, and <code>route_type</code> is Metro, Express, or Shuttle. A link means passengers can travel between those two stations without changing to another connection first. The network is treated as undirected.</p>
+      <p>Each node is a station. <code>district</code> is its administrative area, <code>daily_passengers</code> is approximate daily volume, and <code>station_type</code> is Local, Transfer, or Terminal. Each link is a direct ride: <code>travel_time_min</code> is the time between the pair, and <code>route_type</code> is Metro, Express, or Shuttle. A link means passengers can travel between those two stations without changing to another connection first. The network is treated as undirected. Five stations have no routes at all, so they appear in the node table but not as endpoints in the route table.</p>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="network-title">
@@ -98,7 +98,7 @@
     <section class="chart-shell lab-note" aria-labelledby="network-design-title">
       <h2 id="network-design-title">3. Node-Link Design Description</h2>
       <p id="network-design-text">
-        District is mapped to node color, and a weak geographic force keeps each district loosely clustered, so the view behaves a bit like a city map. Daily passenger volume uses a square-root size scale. Station type uses shape—circle for Local, diamond for Transfer, square for Terminal—so role does not compete with district color. Keeping size and shape separate matters here: some of the largest stations have no routes at all. Travel time is mapped to link width so the slowest direct rides stand out; route type uses link color, with dashed strokes for Shuttles. Dragging untangles the chain, hover highlighting isolates a station’s neighbors, and tooltips name every station and its attributes.
+        District is mapped to node color, and a weak geographic force keeps each district loosely clustered, so color and position both carry membership. Daily passenger volume uses a square-root size scale, which is why Stations 48 to 50 look heavy. Station type uses shape: circle for Local, diamond for Transfer, and square for Terminal, because role should not reuse the district color. Size and shape are kept apart on purpose: some of the largest stations have no routes. Travel time is mapped to link width so slower direct rides stand out as thicker lines; route type uses a second color scale, with dashed strokes for Shuttles. Dragging, neighbor highlighting, and tooltips are there to inspect one station at a time in a dense layout.
       </p>
     </section>
 
@@ -110,7 +110,7 @@
         </div>
         <span class="chart-key">50 × 50 matrix</span>
       </div>
-      <div id="matrix" role="img" aria-label="Adjacency matrix of the urban transit network, ordered by district"></div>
+      <div id="matrix" role="img" aria-label="Adjacency matrix of the urban transit network, ordered by station ID"></div>
       <div class="encoding-guide" aria-label="Assignment matrix encoding guide">
         <h3>Matrix encodings</h3>
         <p><strong>Row / column</strong>: one station, ordered by station ID so consecutive routes form a near-diagonal band.</p>
@@ -123,7 +123,7 @@
     <section class="chart-shell lab-note" aria-labelledby="matrix-design-title">
       <h2 id="matrix-design-title">5. Matrix Design Description</h2>
       <p id="matrix-design-text">
-        The matrix uses the same stations as rows and columns, ordered by station ID. Most routes join consecutive IDs, so the backbone appears as a band next to the diagonal, and the ten skip connections appear as darker cells farther away. Label color still encodes district, which makes the repeating Central–North–South–East–West cycle readable along the axes. Cell color encodes route type and opacity encodes travel time. I did not group by district, because that would scatter the path and hide the chain that actually structures this network.
+        The matrix uses the same stations as rows and columns, ordered by station ID. Filled cells mark a direct connection. I kept extra encodings light: cell color is route type and opacity is travel time, so the darkest cell is the slowest ride. Labels use district color and a small type mark. I ordered by ID rather than by district so consecutive routes stay near the diagonal; skip connections then fall farther off the diagonal. Passenger volume is left out of the grid so it stays readable.
       </p>
     </section>
 
@@ -149,44 +149,44 @@
             <tr>
               <td>1. Which stations appear central in the network?</td>
               <td>Partially</td>
-              <td>Both</td>
-              <td>How many links meet a node; hover highlighting; filled cells in a station’s matrix row</td>
-              <td>This is a backbone from Station 1 to Station 41, not a star hub. Most stations have two neighbors. About fourteen stations look slightly more central because they also sit on a skip link and have three neighbors—for example Stations 4, 7, 16, 21, and 31. Hovering them lights up only those few ties. Stations 42, 43, 46, 48, and 49 have no links, so they sit apart in the node-link view and have empty matrix rows.</td>
+              <td>Node-link</td>
+              <td>How many links meet a node on hover; node size; district color of neighbors</td>
+              <td>There is no star hub. Hover highlighting shows that the best-connected stations have only three neighbors. Station 38 is the one that looks most central in this view: it is the largest Transfer that also has three links, including short rides to other large stations (37 and 39). Stations 48 and 49 are even larger, but they have no links, so size alone does not mean centrality.</td>
             </tr>
             <tr>
               <td>2. Which districts are strongly connected to one another?</td>
-              <td>Well</td>
-              <td>Both, especially the ID-ordered matrix plus district-colored labels</td>
-              <td>District color on nodes and matrix labels; the near-diagonal band of consecutive routes</td>
-              <td>The backbone steps through districts in a repeating cycle: Central–North–South–East–West. Neighboring districts in that cycle are the strongly connected pairs, visible as consecutive label colors along the diagonal. Intra-district ties are rare: only two Central Shuttles (Stations 1–16 and 21–41) appear as off-diagonal cells. East–South also shows extra skip links.</td>
+              <td>Partially</td>
+              <td>Node-link; the matrix only weakly</td>
+              <td>District color and the geographic clustering force; cross-color links</td>
+              <td>Every district color appears in the connected component and has links into other colors, so no district is an island. I did not order the matrix by district, so ranking a single strongest pair is not easy from that view. In the node-link, extra skip links also run between the East and South clusters, but five colors still look interwoven rather than two districts dominating.</td>
             </tr>
             <tr>
               <td>3. Where are transfer or terminal stations located in the topology?</td>
-              <td>Well</td>
-              <td>Node-link; matrix labels support it</td>
-              <td>Shape (diamond vs square vs circle) plus the Tf / Te / L marks on matrix axes</td>
-              <td>Transfer, Terminal, and Local stations are interleaved along the chain (square, diamond, circle, repeat), not clustered at a hub or at the edge. Several terminals even sit on skip links (Stations 4, 7, 16, 25, 31). Isolated terminals—Stations 43, 46, and 49—are the exception: they are large squares with no connections.</td>
+              <td>Well for transfers; only partly for terminals</td>
+              <td>Node-link</td>
+              <td>Shape: diamonds for Transfer, squares for Terminal</td>
+              <td>Every Transfer diamond sits in the connected part of the graph. Terminals split: many squares lie on the same connected chain, but Stations 43, 46, and 49 are Terminal squares with no links and sit outside that component.</td>
             </tr>
             <tr>
               <td>4. Which stations have high passenger volume?</td>
               <td>Well in the node-link view; not easily in the matrix</td>
               <td>Node-link</td>
               <td>Node size</td>
-              <td>Size grows with station ID. Station 50 is the largest node, followed by 49, 48, and 47. High volume is not the same as being connected: Stations 49, 48, 46, and 43 are among the biggest nodes but have no routes. I did not encode volume in the matrix, so this question is difficult there on purpose.</td>
+              <td>Stations 48, 49, and 50 are the three largest nodes. High volume is not the same as being on a route: 48 and 49 have no links, and 50 has only one. Passenger volume is not encoded in the matrix.</td>
             </tr>
             <tr>
               <td>5. Where are the longest direct travel-time connections?</td>
               <td>Well</td>
               <td>Both</td>
-              <td>Link width in the node-link view; cell opacity and off-diagonal position in the matrix</td>
-              <td>The thickest lines and darkest off-diagonal cells are skip Express routes: Station 7–31 (16 min), Station 18–34 (15 min), and Station 29–50 (14 min). Several 12-minute rides also stand out, including sequential links such as Station 7–8 and skip links such as Station 4–23. The longest rides jump farther along the ID axis, not just along the backbone.</td>
+              <td>Cell opacity in the matrix (darker = longer); link width in the node-link view (thicker = longer)</td>
+              <td>The longest direct ride is Station 7–31: it is the darkest filled cell and the thickest Express link. The next-darkest skip cells are Station 18–34 and Station 29–50. Those three stand out more than the consecutive backbone links.</td>
             </tr>
             <tr>
               <td>6. Are particular route types concentrated in particular parts of the network?</td>
-              <td>Well</td>
+              <td>Not easily in the node-link view; partly in the matrix</td>
               <td>Both</td>
-              <td>Link / cell color; dashed Shuttle strokes; repeating pattern along the diagonal</td>
-              <td>Route types are not concentrated in one district. Along the backbone they cycle Express, Shuttle, Metro, which appears as a repeating color and dash pattern on consecutive links and as a striped near-diagonal in the matrix. The skip connections mix all three types as well; the longest skips tend to be Express.</td>
+              <td>Link / cell color; dashed Shuttle strokes; ID-ordered diagonal band</td>
+              <td>In the node-link view, Metro, Express, and Shuttle colors are mixed through the connected graph, not pooled in one district. The ID-ordered matrix also does not show a block of one route type. Types alternate along the near-diagonal band instead of concentrating in one region.</td>
             </tr>
           </tbody>
         </table>
