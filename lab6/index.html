@@ -90,8 +90,13 @@
 
     <section class="chart-shell lab-note" aria-labelledby="design-title">
       <h2 id="design-title">Design Description</h2>
-      <p id="design-text">
-        Both treemaps map GDP to rectangle area because area is the channel D3 treemaps compute from <code>.sum()</code>, and it supports a part-to-whole reading: the United States and China occupy the largest cells, while Kenya is a thin remainder. GDP status is mapped to color so the three categories stay categorical and do not compete with area. The fills come from <code>d3.schemeTableau10</code>: blue for Increase, orange for Unchanged, and red for Decrease. Continent and area are shown by nested padding and parent labels rather than a second fill scale, so the status legend remains unambiguous. The two tiling methods keep the same hierarchy and values and only change how space is cut. Squarify aims for aspect ratios near squares, so large economies are easier to compare by area and country names fit more often. SliceDice alternates horizontal and vertical partitions by depth, which turns continents into stacked bands and areas into strips; that makes the Continent → Area → Country path easier to follow, but small countries become long, thin rectangles. Tooltips supply country, continent, area, GDP, and status when a cell is too small to label.
+      <h3>Why these visual channels</h3>
+      <p id="design-channels">
+        I map GDP amount to rectangle area because a treemap is meant for parts of a whole. After summing leaf GDP, the United States and China occupy the largest cells, and Kenya is a sliver, so magnitude is visible without reading every number. GDP status has three classes, so I map it to fill from <code>d3.schemeTableau10</code>: blue for Increase, orange for Unchanged, and red for Decrease. Color does not compete with area, and a small cell can still show status. Continent and area do not get a second color, which would clash with the status legend. Nesting, padding, continent labels, and area outlines carry membership. Tooltips give country, continent, area, GDP, and status when a label cannot fit.
+      </p>
+      <h3>How the two segmentation strategies change the hierarchy</h3>
+      <p id="design-segmentation">
+        The two methods keep the same hierarchy and the same GDP values. Only the cut rule changes. Squarify keeps rectangles close to squares. Large economies are easier to compare by area, and country names fit more often, but continent groups look like packed blocks rather than clear bands. SliceDice alternates horizontal and vertical cuts by depth. Continents become stacked bands and areas become strips inside those bands, so the path from continent to area to country is easier to trace. The cost is long thin cells for small countries, which are hard to compare by area and often lose labels. Zooming into a parent then uses the full frame for one branch.
       </p>
     </section>
   </main>
