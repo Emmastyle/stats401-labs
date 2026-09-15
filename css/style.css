@@ -86,11 +86,67 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 #chart,
 #assignment-chart,
 #tutorial-matrix,
-#matrix { width: 100%; min-height: 440px; overflow-x: auto; }
+#matrix,
+#gdp-squarify,
+#gdp-slicedice { width: 100%; min-height: 440px; overflow-x: auto; }
 #chart svg,
 #assignment-chart svg,
 #tutorial-matrix svg,
-#matrix svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+#matrix svg,
+#gdp-squarify svg,
+#gdp-slicedice svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+#gdp-squarify text,
+#gdp-slicedice text { font-family: "DM Sans", Arial, sans-serif; }
+#gdp-squarify .cell,
+#gdp-slicedice .cell { cursor: pointer; }
+.continent-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  fill: #17211d;
+  pointer-events: none;
+}
+.treemap-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 12px;
+}
+.treemap-toolbar button {
+  appearance: none;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 12px;
+  font: 12px/1 "DM Sans", Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.treemap-toolbar button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.treemap-toolbar p {
+  margin: 0;
+  color: #65706b;
+  font-size: 13px;
+}
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.status-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.status-swatch {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border: 1px solid var(--line);
+}
 #tutorial-matrix,
 #matrix { min-height: 320px; }
 .network-node { cursor: grab; }
@@ -194,6 +250,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   .chart-shell { padding: 20px 16px 12px; }
   .chart-key { display: none; }
   .dataset-details { grid-template-columns: 1fr 1fr; }
+  .treemap-toolbar { flex-direction: column; align-items: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

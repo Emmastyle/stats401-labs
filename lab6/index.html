@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 6 · STATS 401</title>
+  <meta name="description" content="Two GDP treemaps with different tiling methods for STATS 401 Lab 6.">
+  <title>Lab 6 · Hierarchical Data Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,92 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 06 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 06</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 06 · Hierarchical Data Visualization</p>
+        <h1>GDP,<br><em>nested.</em></h1>
+      </div>
+      <p>A flat GDP table is nested into Continent → Area → Country, then drawn twice with the same values and two different treemap tiling methods.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">Dataset</h2>
+          <p>Synthetic GDP figures nested as Continent → Area → Country</p>
+        </div>
+        <span id="gdp-status" class="chart-key">Loading data</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Source CSV</dt><dd>lab6_assignment_gdp.csv</dd></div>
+        <div><dt>Nested JSON</dt><dd>lab6_assignment_gdp.json</dd></div>
+        <div><dt>Converter</dt><dd>convert_hierarchy.py</dd></div>
+        <div><dt>Leaf attributes</dt><dd>gdp, status</dd></div>
+      </dl>
+      <p>Each leaf is a country. <code>gdp</code> is GDP in billions of U.S. dollars. <code>status</code> is Increase, Unchanged, or Decrease. Python groups the flat table into nested dictionaries so D3 can build a hierarchy with <code>d3.hierarchy()</code>.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="gdp-squarify-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="gdp-squarify-title">Treemap 1: Squarify</h2>
+          <p>Area encodes GDP. Color encodes GDP status. Click a country to zoom one level down.</p>
+        </div>
+        <span id="squarify-focus" class="chart-key">Viewing: World</span>
+      </div>
+      <div class="treemap-toolbar">
+        <button id="squarify-zoom-out" type="button" disabled>Zoom out</button>
+        <p>Click a country to zoom into its continent, then area. Zoom out returns to the parent.</p>
+      </div>
+      <div id="gdp-squarify" role="img" aria-label="Zoomable squarified GDP treemap colored by GDP status"></div>
+      <div class="encoding-guide" aria-label="GDP treemap encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>GDP amount</strong>: rectangle area.</p>
+        <p><strong>GDP status</strong>: fill color from <code>d3.schemeTableau10</code> (see legend).</p>
+        <p><strong>Hierarchy</strong>: nested groups with continent labels and area outlines. Country names appear when a cell is large enough.</p>
+        <p><strong>Tooltip</strong>: country, continent, area, GDP, and GDP status.</p>
+        <p><strong>Zoom</strong>: click zooms World → continent → area. Zoom out returns to the parent.</p>
+      </div>
+      <div class="status-legend" aria-label="GDP status legend">
+        <span><i class="status-swatch" style="background:#4e79a7"></i> Increase</span>
+        <span><i class="status-swatch" style="background:#f28e2b"></i> Unchanged</span>
+        <span><i class="status-swatch" style="background:#e15759"></i> Decrease</span>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="gdp-slicedice-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="gdp-slicedice-title">Treemap 2: SliceDice</h2>
+          <p>The same GDP values, status colors, and zoom interaction, with alternating horizontal and vertical cuts.</p>
+        </div>
+        <span id="slicedice-focus" class="chart-key">Viewing: World</span>
+      </div>
+      <div class="treemap-toolbar">
+        <button id="slicedice-zoom-out" type="button" disabled>Zoom out</button>
+        <p>Click a country to zoom into its continent, then area. Zoom out returns to the parent.</p>
+      </div>
+      <div id="gdp-slicedice" role="img" aria-label="Zoomable slice-dice GDP treemap colored by GDP status"></div>
+      <div class="status-legend" aria-label="GDP status legend">
+        <span><i class="status-swatch" style="background:#4e79a7"></i> Increase</span>
+        <span><i class="status-swatch" style="background:#f28e2b"></i> Unchanged</span>
+        <span><i class="status-swatch" style="background:#e15759"></i> Decrease</span>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="design-title">
+      <h2 id="design-title">Design Description</h2>
+      <p id="design-text">
+        Both treemaps map GDP to rectangle area because area is the channel D3 treemaps compute from <code>.sum()</code>, and it supports a part-to-whole reading: the United States and China occupy the largest cells, while Kenya is a thin remainder. GDP status is mapped to color so the three categories stay categorical and do not compete with area. The fills come from <code>d3.schemeTableau10</code>: blue for Increase, orange for Unchanged, and red for Decrease. Continent and area are shown by nested padding and parent labels rather than a second fill scale, so the status legend remains unambiguous. The two tiling methods keep the same hierarchy and values and only change how space is cut. Squarify aims for aspect ratios near squares, so large economies are easier to compare by area and country names fit more often. SliceDice alternates horizontal and vertical partitions by depth, which turns continents into stacked bands and areas into strips; that makes the Continent → Area → Country path easier to follow, but small countries become long, thin rectangles. Tooltips supply country, continent, area, GDP, and status when a cell is too small to label.
+      </p>
+    </section>
   </main>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab6.js"></script>
 </body>
 </html>

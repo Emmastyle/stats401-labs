@@ -1,0 +1,28 @@
+continent,area,country,gdp_billion_usd,gdp_status
+Asia,East Asia,China,17960,Increase
+Asia,East Asia,Japan,4210,Decrease
+Asia,East Asia,South Korea,1710,Increase
+Asia,South Asia,India,3730,Increase
+Asia,South Asia,Bangladesh,460,Increase
+Asia,Southeast Asia,Indonesia,1370,Increase
+Asia,Southeast Asia,Thailand,515,Unchanged
+Asia,Southeast Asia,Vietnam,430,Increase
+Europe,Western Europe,Germany,4520,Decrease
+Europe,Western Europe,France,3050,Unchanged
+Europe,Western Europe,Netherlands,1150,Increase
+Europe,Southern Europe,Italy,2300,Decrease
+Europe,Southern Europe,Spain,1680,Increase
+Europe,Northern Europe,United Kingdom,3380,Unchanged
+Europe,Northern Europe,Sweden,600,Increase
+North America,Northern America,United States,27800,Increase
+North America,Northern America,Canada,2140,Unchanged
+North America,Central America,Mexico,1790,Increase
+South America,Northern South America,Colombia,365,Increase
+South America,Southern South America,Brazil,2170,Decrease
+South America,Southern South America,Argentina,640,Unchanged
+Africa,North Africa,Egypt,395,Increase
+Africa,West Africa,Nigeria,365,Decrease
+Africa,East Africa,Kenya,120,Increase
+Africa,Southern Africa,South Africa,380,Unchanged
+Oceania,Australia and New Zealand,Australia,1730,Increase
+Oceania,Australia and New Zealand,New Zealand,255,Unchanged

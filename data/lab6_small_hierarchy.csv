@@ -1,0 +1,13 @@
+root,continent,country,region,city,population_thousands
+World,North America,USA,California,Los Angeles,3900
+World,North America,USA,California,San Francisco,870
+World,North America,USA,New York,New York City,8400
+World,North America,Canada,Ontario,Toronto,2900
+World,North America,Canada,British Columbia,Vancouver,675
+World,Europe,Germany,Bavaria,Munich,1500
+World,Europe,Germany,Berlin,Berlin,3700
+World,Europe,France,Île-de-France,Paris,2100
+World,Europe,France,Auvergne-Rhône-Alpes,Lyon,520
+World,Asia,Japan,Kanto,Tokyo,14000
+World,Asia,Japan,Kansai,Osaka,2750
+World,Asia,South Korea,Seoul,Seoul,9500
