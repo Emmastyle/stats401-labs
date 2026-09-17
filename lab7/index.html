@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 7 · STATS 401</title>
+  <meta name="description" content="Temporal weather charts and an animated 60-day commercial network for STATS 401 Lab 7.">
+  <title>Lab 7 · Temporal Data Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,224 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 07 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 07</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 07 · Temporal Data Visualization</p>
+        <h1>Time,<br><em>in motion.</em></h1>
+      </div>
+      <p>This page first maps 180 days of weather onto a line chart with metric switching, hover, range filters, and a controllable marker. It then uses the same time controls on a 60-day commercial network whose links appear and disappear.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="weather-data-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="weather-data-title">Tasks 1–2. Weather Dataset</h2>
+          <p>Synthetic daily observations for eight cities. Dates are parsed with <code>d3.timeParse("%Y-%m-%d")</code>.</p>
+        </div>
+        <span id="weather-status" class="chart-key">Loading data</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Source CSV</dt><dd>lab7_historical_weather.csv</dd></div>
+        <div><dt>Cities</dt><dd>8 · 180 days each</dd></div>
+        <div><dt>Date range</dt><dd>2025-01-01 to 2025-06-29</dd></div>
+        <div><dt>Metrics</dt><dd>temperature, humidity, wind, pressure, precipitation</dd></div>
+      </dl>
+      <p>This is a synthetic historical-style dataset for visualization practice. It contains plausible seasonal patterns but should not be used for meteorological analysis. The chart below compares Tokyo, London, and New York, the three cities specified in the tutorial.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="weather-chart-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="weather-chart-title">Tasks 3–10. Line Chart, Metrics, Hover, Range, and Animation</h2>
+          <p>Time is mapped to the x-axis. Play moves a marker through Tokyo’s series so data time becomes animation time.</p>
+        </div>
+        <span id="weather-date-key" class="chart-key" aria-live="polite">Date: —</span>
+      </div>
+
+      <div class="lab-controls" aria-label="Weather metric and time-range controls">
+        <label class="control-field" for="metric">
+          <span class="control-label">Metric</span>
+          <select id="metric">
+            <option value="temperature_c">Temperature</option>
+            <option value="humidity_pct">Humidity</option>
+            <option value="wind_speed_mps">Wind Speed</option>
+            <option value="pressure_hpa">Pressure</option>
+            <option value="precipitation_mm">Precipitation</option>
+          </select>
+        </label>
+        <label class="control-field" for="start-date">
+          <span class="control-label">Start date</span>
+          <input type="date" id="start-date">
+        </label>
+        <label class="control-field" for="end-date">
+          <span class="control-label">End date</span>
+          <input type="date" id="end-date">
+        </label>
+        <button id="apply-range" type="button">Apply Range</button>
+      </div>
+
+      <div class="lab-controls" aria-label="Weather animation controls">
+        <button id="play" type="button">Play</button>
+        <button id="pause" type="button">Pause</button>
+        <button id="reset" type="button">Reset</button>
+        <label class="control-field control-field-wide" for="time-slider">
+          <span class="control-label">Time slider</span>
+          <input type="range" id="time-slider" min="0" max="179" value="0">
+        </label>
+      </div>
+
+      <div id="chart" role="img" aria-label="Multi-city weather line chart with hover details and a controllable time marker"></div>
+      <p class="chart-hint">Drag on the context bar under the chart to brush a time interval, or type dates and press Apply Range.</p>
+
+      <div class="encoding-guide" aria-label="Weather encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>Time</strong>: x-position on a <code>scaleTime</code> axis.</p>
+        <p><strong>Selected metric</strong>: y-position. Switching Temperature, Humidity, Wind Speed, Pressure, or Precipitation rescales the y-axis and redraws the lines.</p>
+        <p><strong>City</strong>: line color from <code>d3.schemeTableau10</code> for Tokyo, London, and New York.</p>
+        <p><strong>Hover</strong>: closest date via <code>d3.bisector</code> and <code>xScale.invert</code>. The tooltip lists all three cities on that day.</p>
+        <p><strong>Animation</strong>: the red marker follows Tokyo. Play, Pause, Reset, and the slider keep the animation controllable.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="static-vs-animated-title">
+      <h2 id="static-vs-animated-title">Task 11. Static vs. Animated Temporal Visualization</h2>
+      <p>The line chart maps time to space, so the whole 180-day trend is visible at once: winter-to-summer warming in Tokyo and New York, London’s cooler spring, and shared peaks after a metric switch. Animation maps data time to playback time. The marker is useful for change at a single moment, but comparing January with June then depends on memory. The design on this page therefore keeps the overview line, the moving marker, and the time controls together rather than relying on animation alone.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="assignment-data-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="assignment-data-title">Assignment. Animated Temporal Commercial Network</h2>
+          <p>Twelve companies and 60 days of fabricated transactions. Links are treated as undirected commercial relationships.</p>
+        </div>
+        <span id="network-status" class="chart-key">Loading data</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Companies</dt><dd>lab7_assignment_companies.csv</dd></div>
+        <div><dt>Transactions</dt><dd>lab7_assignment_transactions_60days.csv</dd></div>
+        <div><dt>Days</dt><dd>1–60 · 2026-01-01 to 2026-03-01</dd></div>
+        <div><dt>Layout</dt><dd>d3.forceSimulation()</dd></div>
+      </dl>
+      <p>Each node is a company. Each day’s links are that day’s transactions. The central question is how the structure and connectivity of this commercial network change over time. Play the 60 days, or stop on one day and inspect nodes and links.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="network-chart-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="network-chart-title">Parts A–D. Temporal Node-Link Visualization</h2>
+          <p>New relationships fade in. Inactive relationships fade out. Node size is that day’s transaction volume.</p>
+        </div>
+        <span id="network-day-key" class="chart-key" aria-live="polite">Day —</span>
+      </div>
+
+      <div class="lab-controls" aria-label="Network animation controls">
+        <button id="network-play" type="button">Play</button>
+        <button id="network-pause" type="button">Pause</button>
+        <button id="network-reset" type="button">Reset</button>
+        <label class="control-field control-field-wide" for="network-slider">
+          <span class="control-label">60-day time slider</span>
+          <input type="range" id="network-slider" min="1" max="60" value="1">
+        </label>
+      </div>
+
+      <dl class="network-summary" id="network-summary" aria-live="polite">
+        <div><dt>Current day</dt><dd id="summary-day">—</dd></div>
+        <div><dt>Active companies</dt><dd id="summary-companies">—</dd></div>
+        <div><dt>Active links</dt><dd id="summary-links">—</dd></div>
+        <div><dt>Total value</dt><dd id="summary-value">—</dd></div>
+        <div><dt>Cross-regional</dt><dd id="summary-cross">—</dd></div>
+      </dl>
+
+      <div id="assignment-chart" role="img" aria-label="Animated force-directed commercial network of 12 companies over 60 days"></div>
+
+      <div class="encoding-guide" aria-label="Commercial network encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>Sector</strong>: node fill color.</p>
+        <p><strong>Region</strong>: node shape (circle = Asia, square = Europe, diamond = North America) and a weak regional force so Asia stays left, Europe center, and North America right.</p>
+        <p><strong>Current transaction volume</strong>: node size. Companies with no activity that day shrink and fade.</p>
+        <p><strong>Recently active node</strong>: stronger outline on the current day.</p>
+        <p><strong>Transaction type</strong>: link color.</p>
+        <p><strong>Transaction amount</strong>: link width.</p>
+        <p><strong>Entering / disappearing ties</strong>: fade in and fade out over 400ms.</p>
+        <p><strong>Mental map</strong>: the same 12 node objects are reused; the simulation is restarted gently rather than rebuilt; regional forces keep companies near a stable side of the frame. Pause or scrub the slider to inspect one day.</p>
+      </div>
+
+      <div class="status-legend" aria-label="Sector color legend">
+        <span><i class="status-swatch" style="background:#4e79a7"></i> Manufacturing</span>
+        <span><i class="status-swatch" style="background:#f28e2b"></i> Logistics</span>
+        <span><i class="status-swatch" style="background:#e15759"></i> Retail</span>
+        <span><i class="status-swatch" style="background:#76b7b2"></i> Food</span>
+        <span><i class="status-swatch" style="background:#59a14f"></i> Technology</span>
+        <span><i class="status-swatch" style="background:#edc948"></i> Wholesale</span>
+        <span><i class="status-swatch" style="background:#b07aa1"></i> Materials</span>
+      </div>
+      <div class="status-legend" aria-label="Region shape legend">
+        <span><svg class="legend-symbol" viewBox="-8 -8 16 16" aria-hidden="true"><circle r="6" fill="#17211d"></circle></svg> Asia</span>
+        <span><svg class="legend-symbol" viewBox="-8 -8 16 16" aria-hidden="true"><rect x="-5.5" y="-5.5" width="11" height="11" fill="#17211d"></rect></svg> Europe</span>
+        <span><svg class="legend-symbol" viewBox="-8 -8 16 16" aria-hidden="true"><polygon points="0,-7 7,0 0,7 -7,0" fill="#17211d"></polygon></svg> North America</span>
+      </div>
+      <div class="status-legend" aria-label="Transaction type legend">
+        <span><i class="status-swatch" style="background:#66c2a5"></i> Goods</span>
+        <span><i class="status-swatch" style="background:#fc8d62"></i> Shipping</span>
+        <span><i class="status-swatch" style="background:#8da0cb"></i> Components</span>
+        <span><i class="status-swatch" style="background:#e78ac3"></i> Materials</span>
+        <span><i class="status-swatch" style="background:#a6d854"></i> Services</span>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="questions-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="questions-title">Part E. Temporal Network Questions</h2>
+          <p>Answers come from the encodings above: link count, node size, regional position, fade in/out, and the daily summary.</p>
+        </div>
+      </div>
+      <div class="table-scroll questions-scroll">
+        <table class="questions-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Encoding / interaction</th>
+              <th>Observation from the visualization</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. How does overall network connectivity change across the 60 days?</td>
+              <td>Number of visible links; Active companies / Active links / Total value in the summary; Play across all 60 days</td>
+              <td>Connectivity is uneven at first, then denser. Early days swing between sparse frames of three links and busier frames of seven or eight. After about day 21 the empty-looking frames disappear: most days show five to seven links. From day 41 onward the graph is often full. Several late days light up all 12 companies, and the total-value readout climbs from roughly $40k–$115k early to peaks near $200k (for example day 51). The network becomes more connected, not less, over the 60 days.</td>
+            </tr>
+            <tr>
+              <td>2. Which companies become more central or commercially active over time?</td>
+              <td>Node size (current volume); stronger outline when active; tooltips</td>
+              <td>Fusion Electronics (Technology, Asia) is the persistent hub: it stays large through the middle third of the timeline. Ion Systems and Cedar Retail are modest early, then swell in the last 20 days, when new cross-regional ties attach to them. Evergreen Foods stays the smallest node on almost every frame. BlueRiver Logistics and Harbor Shipping remain steadily mid-sized rather than taking over. Activity therefore shifts from Fusion-centered mid-period trade toward a late mix led by Ion and Cedar, with Fusion still present.</td>
+            </tr>
+            <tr>
+              <td>3. Are there periods when the network consists of relatively separate clusters?</td>
+              <td>Regional forces (Asia left, Europe center, North America right); absence of long cross-region links; Cross-regional count</td>
+              <td>Yes, especially on days 1, 7, 13, and 19. Those frames show three same-region pairs and a cross-regional count of 0, so the graph reads as three disconnected regional dyads rather than one component. Mid-period days still have a few within-region bundles, but long links already bridge the three columns. Late days rarely look clustered: almost every frame has several links crossing from Asia to North America or Europe.</td>
+            </tr>
+            <tr>
+              <td>4. Which commercial relationships appear, disappear, or become stronger over time?</td>
+              <td>Link fade in/out; link width (amount); link color (type); pause and scrub</td>
+              <td>Some ties never leave the stage: Cedar–Evergreen (goods, both North America), Ion–Lumen (services), Apex–Fusion (components), and Delta–Fusion (thick components links) recur across the 60 days. Early-only ties such as BlueRiver–Delta, Cedar–Fusion, and Harbor–Keystone fade out after day 20. Fusion–Granite and Granite–Harbor last into the middle third and then vanish. After day 41, new thick links appear around Cedar (to Granite, Keystone, and Harbor) and around Ion (to Delta, Apex, and Fusion). Strength is visible as width: Delta–Fusion is among the heaviest recurring edges.</td>
+            </tr>
+            <tr>
+              <td>5. Does the network become more or less cross-regional over time?</td>
+              <td>Long links that cross the three regional columns; Cross-regional summary; region shape</td>
+              <td>More cross-regional. Early and middle days often show about two-thirds of links crossing regions, and a few early days show none. In the last 20 days the cross-regional share rises (often six or seven of nine or ten links), and the layout is dominated by long edges between the Asia, Europe, and North America columns rather than by short within-region chords. The late network is more mixed geographically, not more local.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab7.js"></script>
 </body>
 </html>

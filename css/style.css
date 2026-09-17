@@ -95,6 +95,91 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 #matrix svg,
 #gdp-squarify svg,
 #gdp-slicedice svg { display: block; width: 100%; min-width: 700px; height: auto; overflow: visible; }
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 14px;
+  margin: 16px 0 8px;
+}
+.lab-controls button {
+  appearance: none;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 12px;
+  font: 12px/1 "DM Sans", Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.lab-controls button:hover { background: var(--orange); border-color: var(--orange); }
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+.control-field-wide { min-width: min(360px, 100%); flex: 1; }
+.control-label {
+  color: #65706b;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.lab-controls select,
+.lab-controls input[type="date"] {
+  border: 1px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  padding: 7px 10px;
+  font: 13px/1.2 "DM Sans", Arial, sans-serif;
+}
+.lab-controls input[type="range"] {
+  width: 100%;
+  accent-color: var(--orange);
+}
+.chart-hint {
+  margin: 10px 0 0;
+  color: #65706b;
+  font-size: 13px;
+}
+.network-summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 12px 0 16px;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.network-summary div {
+  padding: 12px 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.network-summary dt {
+  margin-bottom: 6px;
+  color: #65706b;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.network-summary dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.legend-symbol {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.x-axis,
+.y-axis,
+.context {
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 11px;
+}
 #gdp-squarify text,
 #gdp-slicedice text { font-family: "DM Sans", Arial, sans-serif; }
 #gdp-squarify .cell,
@@ -249,7 +334,8 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   .lab-card.featured { grid-column: span 1; }
   .chart-shell { padding: 20px 16px 12px; }
   .chart-key { display: none; }
-  .dataset-details { grid-template-columns: 1fr 1fr; }
+  .dataset-details,
+  .network-summary { grid-template-columns: 1fr 1fr; }
   .treemap-toolbar { flex-direction: column; align-items: flex-start; }
 }
 
