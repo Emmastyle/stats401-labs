@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Temporal weather charts and an animated 60-day commercial network for STATS 401 Lab 7.">
+  <meta name="description" content="Animated 60-day commercial network visualization for STATS 401 Lab 7.">
   <title>Lab 7 · Temporal Data Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -20,89 +20,13 @@
         <p class="eyebrow">Lab 07 · Temporal Data Visualization</p>
         <h1>Time,<br><em>in motion.</em></h1>
       </div>
-      <p>This page first maps 180 days of weather onto a line chart with metric switching, hover, range filters, and a controllable marker. It then uses the same time controls on a 60-day commercial network whose links appear and disappear.</p>
-    </section>
-
-    <section class="chart-shell lab-note" aria-labelledby="weather-data-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="weather-data-title">Tasks 1–2. Weather Dataset</h2>
-          <p>Synthetic daily observations for eight cities. Dates are parsed with <code>d3.timeParse("%Y-%m-%d")</code>.</p>
-        </div>
-        <span id="weather-status" class="chart-key">Loading data</span>
-      </div>
-      <dl class="dataset-details">
-        <div><dt>Source CSV</dt><dd>lab7_historical_weather.csv</dd></div>
-        <div><dt>Cities</dt><dd>8 · 180 days each</dd></div>
-        <div><dt>Date range</dt><dd>2025-01-01 to 2025-06-29</dd></div>
-        <div><dt>Metrics</dt><dd>temperature, humidity, wind, pressure, precipitation</dd></div>
-      </dl>
-      <p>This is a synthetic historical-style dataset for visualization practice. It contains plausible seasonal patterns but should not be used for meteorological analysis. The chart below compares Tokyo, London, and New York, the three cities specified in the tutorial.</p>
-    </section>
-
-    <section class="chart-shell lab-note" aria-labelledby="weather-chart-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="weather-chart-title">Tasks 3–10. Line Chart, Metrics, Hover, Range, and Animation</h2>
-          <p>Time is mapped to the x-axis. Play moves a marker through Tokyo’s series so data time becomes animation time.</p>
-        </div>
-        <span id="weather-date-key" class="chart-key" aria-live="polite">Date: —</span>
-      </div>
-
-      <div class="lab-controls" aria-label="Weather metric and time-range controls">
-        <label class="control-field" for="metric">
-          <span class="control-label">Metric</span>
-          <select id="metric">
-            <option value="temperature_c">Temperature</option>
-            <option value="humidity_pct">Humidity</option>
-            <option value="wind_speed_mps">Wind Speed</option>
-            <option value="pressure_hpa">Pressure</option>
-            <option value="precipitation_mm">Precipitation</option>
-          </select>
-        </label>
-        <label class="control-field" for="start-date">
-          <span class="control-label">Start date</span>
-          <input type="date" id="start-date">
-        </label>
-        <label class="control-field" for="end-date">
-          <span class="control-label">End date</span>
-          <input type="date" id="end-date">
-        </label>
-        <button id="apply-range" type="button">Apply Range</button>
-      </div>
-
-      <div class="lab-controls" aria-label="Weather animation controls">
-        <button id="play" type="button">Play</button>
-        <button id="pause" type="button">Pause</button>
-        <button id="reset" type="button">Reset</button>
-        <label class="control-field control-field-wide" for="time-slider">
-          <span class="control-label">Time slider</span>
-          <input type="range" id="time-slider" min="0" max="179" value="0">
-        </label>
-      </div>
-
-      <div id="chart" role="img" aria-label="Multi-city weather line chart with hover details and a controllable time marker"></div>
-      <p class="chart-hint">Drag on the context bar under the chart to brush a time interval, or type dates and press Apply Range.</p>
-
-      <div class="encoding-guide" aria-label="Weather encoding guide">
-        <h3>Visual Encoding Guide</h3>
-        <p><strong>Time</strong>: x-position on a <code>scaleTime</code> axis.</p>
-        <p><strong>Selected metric</strong>: y-position. Switching Temperature, Humidity, Wind Speed, Pressure, or Precipitation rescales the y-axis and redraws the lines.</p>
-        <p><strong>City</strong>: line color from <code>d3.schemeTableau10</code> for Tokyo, London, and New York.</p>
-        <p><strong>Hover</strong>: closest date via <code>d3.bisector</code> and <code>xScale.invert</code>. The tooltip lists all three cities on that day.</p>
-        <p><strong>Animation</strong>: the red marker follows Tokyo. Play, Pause, Reset, and the slider keep the animation controllable.</p>
-      </div>
-    </section>
-
-    <section class="chart-shell lab-note" aria-labelledby="static-vs-animated-title">
-      <h2 id="static-vs-animated-title">Task 11. Static vs. Animated Temporal Visualization</h2>
-      <p>The line chart maps time to space, so the whole 180-day trend is visible at once: winter-to-summer warming in Tokyo and New York, London’s cooler spring, and shared peaks after a metric switch. Animation maps data time to playback time. The marker is useful for change at a single moment, but comparing January with June then depends on memory. The design on this page therefore keeps the overview line, the moving marker, and the time controls together rather than relying on animation alone.</p>
+      <p>An animated 60-day commercial network. Play the timeline, or stop on one day and inspect how companies connect, appear, and drop out.</p>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="assignment-data-title">
       <div class="chart-heading">
         <div>
-          <h2 id="assignment-data-title">Assignment. Animated Temporal Commercial Network</h2>
+          <h2 id="assignment-data-title">Animated Temporal Commercial Network</h2>
           <p>Twelve companies and 60 days of fabricated transactions. Links are treated as undirected commercial relationships.</p>
         </div>
         <span id="network-status" class="chart-key">Loading data</span>
@@ -113,13 +37,13 @@
         <div><dt>Days</dt><dd>1–60 · 2026-01-01 to 2026-03-01</dd></div>
         <div><dt>Layout</dt><dd>d3.forceSimulation()</dd></div>
       </dl>
-      <p>Each node is a company. Each day’s links are that day’s transactions. The central question is how the structure and connectivity of this commercial network change over time. Play the 60 days, or stop on one day and inspect nodes and links.</p>
+      <p>Each node is a company. Each day’s links are that day’s transactions. The central question is how the structure and connectivity of this commercial network change over time.</p>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="network-chart-title">
       <div class="chart-heading">
         <div>
-          <h2 id="network-chart-title">Parts A–D. Temporal Node-Link Visualization</h2>
+          <h2 id="network-chart-title">Temporal Node-Link Visualization</h2>
           <p>New relationships fade in. Inactive relationships fade out. Node size is that day’s transaction volume.</p>
         </div>
         <span id="network-day-key" class="chart-key" aria-live="polite">Day —</span>
@@ -183,7 +107,7 @@
     <section class="chart-shell lab-note" aria-labelledby="questions-title">
       <div class="chart-heading">
         <div>
-          <h2 id="questions-title">Part E. Temporal Network Questions</h2>
+          <h2 id="questions-title">Temporal Network Questions</h2>
           <p>Answers come from the encodings above: link count, node size, regional position, fade in/out, and the daily summary.</p>
         </div>
       </div>

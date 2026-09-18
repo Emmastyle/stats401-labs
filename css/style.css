@@ -127,22 +127,9 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.lab-controls select,
-.lab-controls input[type="date"] {
-  border: 1px solid var(--ink);
-  background: #fff;
-  color: var(--ink);
-  padding: 7px 10px;
-  font: 13px/1.2 "DM Sans", Arial, sans-serif;
-}
 .lab-controls input[type="range"] {
   width: 100%;
   accent-color: var(--orange);
-}
-.chart-hint {
-  margin: 10px 0 0;
-  color: #65706b;
-  font-size: 13px;
 }
 .network-summary {
   display: grid;
@@ -173,12 +160,6 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   height: 14px;
   display: inline-block;
   vertical-align: middle;
-}
-.x-axis,
-.y-axis,
-.context {
-  font-family: "DM Sans", Arial, sans-serif;
-  font-size: 11px;
 }
 #gdp-squarify text,
 #gdp-slicedice text { font-family: "DM Sans", Arial, sans-serif; }
