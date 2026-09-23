@@ -20,43 +20,7 @@
         <p class="eyebrow">Lab 05 · Interactive Network Visualization</p>
         <h1>Stations,<br><em>linked.</em></h1>
       </div>
-      <p>This page first builds a small force-directed collaboration network, then uses the same techniques on a 50-station transit system shown as both a node-link diagram and an adjacency matrix.</p>
-    </section>
-
-    <section class="chart-shell lab-note" aria-labelledby="tutorial-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="tutorial-title">Guided Example: University Collaboration</h2>
-          <p>Tasks 1–15. Ten people, three units, and three kinds of professional ties.</p>
-        </div>
-        <span class="chart-key">10 nodes · 14 links</span>
-      </div>
-      <div id="chart" role="img" aria-label="Force-directed collaboration network of ten university project members"></div>
-      <div class="encoding-guide" aria-label="Tutorial encoding guide">
-        <h3>Tutorial encodings</h3>
-        <p><strong>activity_count</strong>: node size (square-root scale).</p>
-        <p><strong>group</strong>: node color (Research, Design, Engineering).</p>
-        <p><strong>weight</strong>: link width.</p>
-        <p><strong>type</strong>: link color from <code>d3.schemeSet2</code>; communication ties are also dashed.</p>
-        <p>Drag a node to reposition it. Hover to highlight neighbors and read a tooltip.</p>
-      </div>
-    </section>
-
-    <section class="chart-shell lab-note" aria-labelledby="tutorial-matrix-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="tutorial-matrix-title">Guided Example: Adjacency Matrix</h2>
-          <p>Task 16. The same ten people as rows and columns; a filled cell is a tie.</p>
-        </div>
-        <span class="chart-key">10 × 10 matrix</span>
-      </div>
-      <div id="tutorial-matrix" role="img" aria-label="Adjacency matrix of the university collaboration network"></div>
-      <div class="encoding-guide">
-        <h3>Matrix encodings</h3>
-        <p><strong>Cell position</strong>: source and target people.</p>
-        <p><strong>Fill</strong>: steelblue if a tie exists; otherwise light gray. Tie type is in the tooltip, not in the fill.</p>
-        <p><strong>Opacity</strong>: relationship weight. Darker blue is a stronger tie.</p>
-      </div>
+      <p>This page uses a 50-station transit system shown as both a node-link diagram and an adjacency matrix.</p>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="dataset-title">

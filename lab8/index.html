@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 8 · STATS 401</title>
+  <meta name="description" content="Interactive semantic map of the DKU undergraduate bulletin for STATS 401 Lab 8.">
+  <title>Lab 8 · Web Text Data and Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,138 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 08 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 08</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 08 · Web Text Data and Visualization</p>
+        <h1>Where it sits,<br><em>and what it means.</em></h1>
+      </div>
+      <p>A reading of the DKU undergraduate bulletin that keeps the printed headings and also shows which passages talk about the same thing.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="corpus-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="corpus-title">1. Bulletin and Corpus</h2>
+          <p>One paragraph or short policy block is one passage, and one point on the map.</p>
+        </div>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Title</dt><dd>Bulletin of Duke Kunshan University, Undergraduate Instruction</dd></div>
+        <div><dt>Version</dt><dd>2021–2022</dd></div>
+        <div><dt>Source</dt><dd><a href="https://dku-web-admissions.s3.cn-north-1.amazonaws.com.cn/dkumain/files/V2021-22_DKU_UG_Bulletin.pdf">Official PDF</a></dd></div>
+        <div><dt>Accessed</dt><dd>22 September 2026</dd></div>
+        <div><dt>Raw passage blocks</dt><dd>3,134</dd></div>
+        <div><dt>After cleaning</dt><dd>1,061 passages</dd></div>
+        <div><dt>Mean length</dt><dd>84 words</dd></div>
+        <div><dt>Formal structure</dt><dd>12 parts · 82 sections</dd></div>
+      </dl>
+      <p>I used pages 10–400 and the PDF outline, so each passage still has a part, section, subsection, and page. Cover and table of contents are gone, along with page numbers, footnotes, headings, and leftover course-table rows. Duplicates were dropped. I did not strip stop words before embedding. Embeddings: <code>all-MiniLM-L6-v2</code>, 384-d, L2-normalized. UMAP: 15 neighbors, min_dist 0.15, cosine, <code>random_state</code> 401. Topics: 8-means on the original vectors, same seed.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="overview-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="overview-title">2. Corpus Overview</h2>
+          <p>Word counts, how the passages sit in the table of contents, and which words are more specific to this bulletin.</p>
+        </div>
+      </div>
+      <h3 class="findings-block">Top meaningful terms</h3>
+      <p>Counts after dropping English stop words. <em>Students</em> (1,110) and <em>course</em> (1,087) sit far above everything else. They show up in almost every chapter, so frequency alone does not name a topic.</p>
+      <div id="top-terms-chart" role="img" aria-label="Bar chart of the most frequent meaningful terms"></div>
+      <h3 class="findings-block">Passages by section</h3>
+      <p>Sections with at least eight passages. Course Descriptions has 631 of 1,061. Majors is next (78), then Degree Requirements (30). Most other headings are small.</p>
+      <div id="passages-by-section" role="img" aria-label="Bar chart of passage counts for the largest bulletin sections"></div>
+      <h3 class="findings-block">Top TF-IDF terms</h3>
+      <p>Mean TF-IDF, stop words removed only here. <em>Chinese</em>, <em>duke</em>, and <em>prerequisite</em> move up relative to the raw counts. Those words are common in this book, but not as generic as <em>students</em>.</p>
+      <div id="tfidf-chart" role="img" aria-label="Bar chart of the top TF-IDF terms in the bulletin"></div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="map-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="map-title">3. Semantic Embedding Map</h2>
+          <p>Position is semantic similarity. Color is topic. Area is passage length.</p>
+        </div>
+        <span id="map-status" class="chart-key">Loading</span>
+      </div>
+
+      <div class="lab-controls" aria-label="Map filters">
+        <label class="control-field control-field-wide" for="search">
+          <span class="control-label">Search passages</span>
+          <input id="search" type="text" placeholder="Search bulletin...">
+        </label>
+        <label class="control-field" for="section-filter">
+          <span class="control-label">Formal section</span>
+          <select id="section-filter"></select>
+        </label>
+        <label class="control-field" for="topic-filter">
+          <span class="control-label">Semantic topic</span>
+          <select id="topic-filter"></select>
+        </label>
+        <button id="reset-view" type="button">Reset</button>
+      </div>
+
+      <div class="lab8-stage">
+        <div>
+          <div id="semantic-map" role="img" aria-label="Semantic map of bulletin passages"></div>
+          <div id="topic-legend" class="status-legend" aria-label="Semantic topic legend"></div>
+          <p class="map-note">Nearby points usually talk about the same thing; the axes themselves do not mean much. Size is word count. Click a point for the heading, the text, and five nearest passages. Scroll or drag to zoom.</p>
+        </div>
+        <aside id="detail-panel" class="detail-panel" aria-live="polite">
+          <h3>Passage details</h3>
+          <p>Click a point, or a cell in the matrix, to read a passage in place.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="matrix-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="matrix-title">4. Topic × Bulletin Section</h2>
+          <p>Rows are formal sections. Columns are semantic topics. Darker cells contain more passages.</p>
+        </div>
+      </div>
+      <div id="topic-matrix" role="img" aria-label="Matrix of semantic topics by bulletin section"></div>
+      <p class="map-note">Click a cell to highlight those passages on the map. Click a map point to highlight its cell here. Hover a cell for the section, topic, count, and share of that section.</p>
+    </section>
+
+    <section class="chart-shell lab-note findings-block" aria-labelledby="findings-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="findings-title">5. Semantic Findings</h2>
+          <p>Read from the three charts above, then from the map and the matrix.</p>
+        </div>
+      </div>
+
+      <h3>What are the major semantic topics?</h3>
+      <p>Eight colors on the map. The large ones are Global History, Culture, and Politics (194 passages), Policy, Health, and Society (176), Quantitative and Physical Sciences (158), and Language, Media, and Skills (157). Filter the map to any of those and most of the remaining points sit in Course Descriptions, which is also the tallest bar in “Passages by section.” The smaller colors are more like office language: University Identity and Study Away (133), Credit and Degree Requirements (121), Academic Standing and Withdrawal (82), Academic Calendar and Deadlines (40). That matches section 2. The frequency chart is almost all <em>students</em> and <em>course</em>. TF-IDF is more useful: <em>chinese</em>, <em>prerequisite</em>, <em>credit</em> are closer to the labels I actually used.</p>
+
+      <h3>Which topics appear across multiple formal sections?</h3>
+      <p>Look down the matrix columns. University Identity and Study Away is dark in 56 sections. Academic Standing and Withdrawal in 27, Credit and Degree Requirements in 23. Those are the same kinds of words TF-IDF picked up (<em>duke</em>, <em>credit</em>, <em>academic</em>). The science and history columns barely leave Course Descriptions and Majors. So a lot of the bulletin’s policy headings are repeating a few institutional topics, while the disciplinary material stays in Part 10.</p>
+
+      <h3>Which formal sections contain the most semantically diverse content?</h3>
+      <p>“Passages by section” is lopsided: Course Descriptions 631, Majors 78, then a long tail. The matrix row for Course Descriptions uses seven of eight topics. Majors uses six. Degree Requirements (30 passages, 5 topics) is the most mixed policy heading. The calendar is the opposite. It has 20 passages and they are all yellow. A long section in the bar chart is not automatically mixed, but the two longest ones happen to be.</p>
+
+      <h3>Which passages from different sections are semantically similar?</h3>
+      <p>Click a point and read the five nearest neighbors. The probation paragraph for 2022–2024 (p. 58) is almost the same as the one for 2025 and beyond (p. 60), similarity 0.994. Both say students have to clear probation to continue. A CR/NC note under Grading (p. 53) sits next to the study-away grade rule (p. 75), 0.958. The 40-credit cap is under Transfer of Work Taken Elsewhere (p. 39) and again under Office of Global Education and Study Away (p. 75), 0.923. Same sentence, two headings.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="design-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="design-title">6. Design Description</h2>
+          <p>Embeddings, topic labels, encodings, and why the two views sit together.</p>
+        </div>
+      </div>
+      <p id="design-copy">Passages were encoded with <code>all-MiniLM-L6-v2</code> (384 dimensions, L2-normalized). Neighbors use cosine similarity on those vectors. Topics are 8-means on the same vectors, seed 401, not on the 2D map. UMAP is only for display: 15 neighbors, min_dist 0.15, cosine, same seed. Nearby points tend to mean similar things. The axes are not variables.</p>
+      <p>I named clusters after reading passages near each center and that cluster’s TF-IDF terms. The names are not copied from the table of contents. One group still mixes language courses, media, and PE. Those blurbs all sound like skill-practice notes, so the model puts them together. Section 2 is why I trusted TF-IDF more than raw counts: <em>students</em> and <em>course</em> are everywhere, while <em>chinese</em> and <em>prerequisite</em> actually differ across the book. The section bar chart is also why Course Descriptions eats the map. It is 631 of 1,061 passages, and that one row in the matrix uses seven topics.</p>
+      <p>On the map, position is UMAP, color is topic, size is word count. The matrix is section × topic; darker means more passages. Click a point for heading, page, text, five neighbors, and its cell. Click a cell to keep that pair. Search and the two menus dim the rest. That is how the probation wording and the 40-credit cap showed up under two different headings, which is the point of putting the formal structure next to the semantic one.</p>
+    </section>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab8.js"></script>
 </body>
 </html>
