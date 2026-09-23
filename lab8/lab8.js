@@ -84,15 +84,20 @@ function drawOverview(passages, tfidf, terms) {
         d => d.count
     );
 
-    const bySection = d3.rollups(passages, v => v.length, d => d.section)
-        .map(([section, count]) => ({ section, count }))
-        .filter(d => d.count >= 8)
-        .sort((a, b) => b.count - a.count);
+    const lengthBySection = d3.rollups(
+        passages,
+        v => ({ avg: d3.mean(v, d => d.word_count), n: v.length }),
+        d => d.section
+    )
+        .map(([section, stats]) => ({ section, avg: stats.avg, n: stats.n }))
+        .filter(d => d.n >= 8)
+        .sort((a, b) => b.avg - a.avg);
     horizontalBars(
-        "#passages-by-section",
-        bySection,
+        "#length-by-section",
+        lengthBySection,
         d => (d.section.length > 52 ? `${d.section.slice(0, 50)}…` : d.section),
-        d => d.count
+        d => d.avg,
+        d3.format(".0f")
     );
 
     horizontalBars(

@@ -351,12 +351,12 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   font-size: 15px;
   font-weight: 600;
 }
-#semantic-map, #topic-matrix, #top-terms-chart, #passages-by-section, #tfidf-chart {
+#semantic-map, #topic-matrix, #top-terms-chart, #length-by-section, #tfidf-chart {
   width: 100%;
   overflow: auto;
 }
 #semantic-map { overflow: hidden; }
-#semantic-map svg, #topic-matrix svg, #top-terms-chart svg, #passages-by-section svg, #tfidf-chart svg {
+#semantic-map svg, #topic-matrix svg, #top-terms-chart svg, #length-by-section svg, #tfidf-chart svg {
   display: block;
   width: 100%;
   height: auto;
