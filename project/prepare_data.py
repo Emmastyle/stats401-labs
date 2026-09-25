@@ -1,4 +1,4 @@
-"""Join OWID happiness, population, and income-group tables for the project."""
+"""Join OWID happiness, population, income-group, and GDP tables for the project."""
 
 from pathlib import Path
 
@@ -45,6 +45,7 @@ def main():
     happiness = pd.read_csv(SRC / "happiness-raw.csv")
     income = pd.read_csv(SRC / "income-raw.csv")
     population = pd.read_csv(SRC / "population-raw.csv")
+    gdp = pd.read_csv(SRC / "gdp-raw.csv")
     centroids = pd.read_csv(SRC / "centroids-iso2.csv")
     iso = pd.read_csv(SRC / "iso-all.csv")
 
@@ -59,9 +60,12 @@ def main():
     population = countries_only(population)
     income = countries_only(income)
     income = income.rename(columns={"World Bank's income classification": "income_raw"})
+    gdp = countries_only(gdp)
+    gdp = gdp.rename(columns={"GDP per capita": "gdp"})
 
     pop_lookup = nearest_year_map(population, "Population", years)
     income_lookup = nearest_year_map(income, "income_raw", years)
+    gdp_lookup = nearest_year_map(gdp, "gdp", years)
 
     iso2_to_iso3 = dict(zip(iso["alpha-2"], iso["alpha-3"]))
     centroids["iso"] = centroids["ISO"].map(iso2_to_iso3)
@@ -91,6 +95,7 @@ def main():
         lon, lat = lonlat
         pop = pop_lookup.get((row.Code, row.Year))
         income_name = income_lookup.get((row.Code, row.Year))
+        gdp_value = gdp_lookup.get((row.Code, row.Year))
         rows.append(
             {
                 "country": row.Entity,
@@ -98,6 +103,7 @@ def main():
                 "year": int(row.Year),
                 "happiness": round(float(row.happiness), 3),
                 "population": None if pd.isna(pop) else int(pop),
+                "gdp": None if gdp_value is None or pd.isna(gdp_value) else round(float(gdp_value), 1),
                 "income_group": INCOME_SHORT.get(income_name, income_name),
                 "continent": continent_of(row.Code),
                 "lon": round(float(lon), 4),
@@ -110,6 +116,7 @@ def main():
     print("wrote", OUT, "rows", len(out), "countries", out.iso.nunique())
     print("years", sorted(out.year.unique()))
     print("income", out.income_group.value_counts(dropna=False).to_dict())
+    print("gdp missing", int(out.gdp.isna().sum()))
     if missing_geo:
         print("dropped without centroids", missing_geo)
 

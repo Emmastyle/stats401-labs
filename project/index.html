@@ -28,7 +28,7 @@
       <div class="chart-heading">
         <div>
           <h2 id="original-title">1. Original Visualization</h2>
-          <p>Interactive choropleth map published by Our World in Data. The critique is about this map and its built-in interactions, not the extra charts listed under “Explore charts that include this data.” For the redesign I chose to make a complex single visualization: one coordinated view instead of a set of separate charts.</p>
+          <p>Interactive choropleth map published by Our World in Data. I only critique and redesign the Map view, not the Table, Line, or Bar buttons on the original toolbar, and not the extra charts listed under “Explore charts that include this data.” For the redesign I chose to make a complex single visualization: one coordinated view instead of a set of separate charts.</p>
         </div>
         <span class="chart-key">Source map · 2020</span>
       </div>
@@ -46,7 +46,7 @@
       <div class="chart-heading">
         <div>
           <h2 id="intro-title">2. Introduction to the Visualization and Data</h2>
-          <p>What the original map is for, who it is for, and what the numbers mean.</p>
+          <p>What the original map is for, who it is for, and what viewers are meant to do with it.</p>
         </div>
       </div>
       <dl class="dataset-details">
@@ -57,34 +57,136 @@
       </dl>
       <p>The map uses geographic position for countries and a sequential color scale for average self-reported life satisfaction. Users can hover to read a value, move across years, and select countries. Its main job is a global geographic overview of differences in reported life satisfaction.</p>
       <p>Life satisfaction is measured with the Cantril Ladder: respondents place their current life on a scale from 0, the worst possible life, to 10, the best possible life. The visualization uses data from the Wellbeing Research Centre’s World Happiness Report 2026, based on nationally representative Gallup World Poll surveys. The dataset covers 2011–2025. The latest 2025 estimates are averages from the 2023–2025 survey period.</p>
-      <h3 class="findings-block">Intended message, audience, and tasks</h3>
-      <p>The original is designed to show how self-reported life satisfaction varies across countries and over time. Color on a world map lets viewers notice broad geographic clusters of high or low scores. The year control shows how those patterns change.</p>
-      <p>The audience is general: students, researchers, journalists, policymakers, and other Our World in Data readers. A familiar world map and a simple color encoding do not require specialized statistical knowledge.</p>
-      <p>Supported tasks include locating a country and reading its score, comparing regions, spotting unusually high or low values, and changing the year. The map is strongest for spatial exploration. Precise country-to-country and temporal comparisons need extra hovering and memory.</p>
+      <div class="intended-grid" aria-label="Intended message, audience, and tasks">
+        <section>
+          <p class="critique-index">01 Message</p>
+          <h3>Intended message</h3>
+          <p>The goal of the visualization is to present the changes in self-reported life satisfaction across countries and over time. By assigning colors to life satisfaction scores on a world map, we enable viewers to rapidly identify large-scale geographic trends. The year control also allows viewers to see how these patterns change with time.</p>
+        </section>
+        <section>
+          <p class="critique-index">02 Audience</p>
+          <h3>Intended audience</h3>
+          <p>The visualization is aimed at a general public interested in global well-being and quality of life, including students, researchers, journalists, policy makers, and other readers of Our World in Data. It does not demand special statistical knowledge, because it uses a familiar world map and a relatively simple color encoding.</p>
+        </section>
+        <section>
+          <p class="critique-index">03 Tasks</p>
+          <h3>Intended tasks</h3>
+          <p>Viewers can locate countries and read their scores, compare life satisfaction across countries or regions, and spot unusually high or low values. They can also change the year to see how the map changes over time. The visualization is strongest for spatial exploration and global patterns; precise country-to-country and temporal comparisons need extra interaction.</p>
+        </section>
+      </div>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="critique-title">
       <div class="chart-heading">
         <div>
           <h2 id="critique-title">3. Critique</h2>
-          <p>What the choropleth already does well, and the three problems the redesign targets.</p>
+          <p>Three strengths, then four weaknesses the redesign answers.</p>
         </div>
       </div>
-      <h3 class="findings-block">Strengths</h3>
-      <p><strong>Geographic patterns.</strong> Position plus a sequential color scale is a good match for spatial distribution. Viewers can read regional clusters without opening every tooltip, and the familiar world map keeps the chart accessible.</p>
-      <p><strong>Exploration across countries and time.</strong> Hover, selection, and the timeline move from a global overview to a specific country and year without drawing every year at once.</p>
-      <p><strong>Overview, filter, details-on-demand.</strong> The map starts with the world, the year control filters time, and hover or selection supplies the exact value. Users choose what to inspect instead of being locked into one comparison.</p>
-      <h3 class="findings-block">Weaknesses</h3>
-      <p><strong>Color is weak for precise comparison.</strong> Scores of 6.5 and 6.8 can look almost the same. Ranking and magnitude require hovering country by country.</p>
-      <p><strong>Land area steals attention.</strong> Canada and Russia occupy much more screen than small countries, even though area has nothing to do with life satisfaction. Small countries are easy to miss or hard to click.</p>
-      <p><strong>Change over time is not encoded.</strong> The map shows one year at a time. Viewers must remember the previous color to know whether a country improved or declined, and by how much.</p>
+
+      <div class="critique-works">
+        <div class="critique-works-lead">
+          <h3>Three strengths</h3>
+        </div>
+        <article>
+          <p class="critique-index">01 Geographic patterns</p>
+          <p>Position plus a sequential color scale is a good match for spatial distribution. Viewers can read regional clusters without opening every tooltip, and the familiar world map keeps the chart accessible.</p>
+        </article>
+        <article>
+          <p class="critique-index">02 Exploration across countries and time</p>
+          <p>Hover, selection, and the timeline move from a global overview to a specific country and year without drawing every year at once.</p>
+        </article>
+        <article>
+          <p class="critique-index">03 Overview, filter, details-on-demand</p>
+          <p>The map starts with the world, the year control filters time, and hover or selection supplies the exact value. Users choose what to inspect instead of being locked into one comparison.</p>
+        </article>
+      </div>
+
+      <div class="critique-limits-head">
+        <p>Four Weaknesses</p>
+        <p>Each weakness changes what a reader can conclude. Each response is something the redesign now does.</p>
+      </div>
+      <div class="critique-limits">
+        <article>
+          <p class="critique-index">01 Color</p>
+          <h4>Small gaps disappear</h4>
+          <dl>
+            <div>
+              <dt>Problem</dt>
+              <dd>Scores of 6.5 and 6.8 can look almost the same. Ranking needs hover, country by country.</dd>
+            </div>
+            <div>
+              <dt>Why it matters</dt>
+              <dd>Color cannot carry a 0.3-point gap. Viewers cannot tell who is ahead, only who is darker.</dd>
+            </div>
+            <div class="critique-response">
+              <dt>How it could be improved</dt>
+              <dd>Center color on the year’s mean, and add a linked 0–10 ranking so selected countries share one bar axis.</dd>
+            </div>
+          </dl>
+        </article>
+        <article>
+          <p class="critique-index">02 Land area</p>
+          <h4>Area steals attention</h4>
+          <dl>
+            <div>
+              <dt>Problem</dt>
+              <dd>Canada and Russia fill the screen. Small countries are easy to miss or hard to click.</dd>
+            </div>
+            <div>
+              <dt>Why it matters</dt>
+              <dd>Land area has nothing to do with life satisfaction. Size on the map is the wrong variable.</dd>
+            </div>
+            <div class="critique-response">
+              <dt>How it could be improved</dt>
+              <dd>Replace country shapes with Dorling circles sized by population, and keep a hideable list for names.</dd>
+            </div>
+          </dl>
+        </article>
+        <article>
+          <p class="critique-index">03 Time</p>
+          <h4>Change is invisible</h4>
+          <dl>
+            <div>
+              <dt>Problem</dt>
+              <dd>The map shows one year at a time. Viewers must remember the last color to see rise or fall.</dd>
+            </div>
+            <div>
+              <dt>Why it matters</dt>
+              <dd>A high-but-falling country looks like a low-but-rising one if only the latest color is on screen.</dd>
+            </div>
+            <div class="critique-response">
+              <dt>How it could be improved</dt>
+              <dd>Open ranking, change, and trajectory notes on the map, each with a year bar in sync with the map. Keep the map discrete: yearly color jumps are easier to read. Make play continuous only in the three notes, so ranking reorders as scores pass, change points slide, and trajectories grow from 2011 to the current year.</dd>
+            </div>
+          </dl>
+        </article>
+        <article>
+          <p class="critique-index">04 Income filter</p>
+          <h4>The filter hides the link</h4>
+          <dl>
+            <div>
+              <dt>Problem</dt>
+              <dd>Income is only a filter option. Sort stays the original order. Income appears as gray text on the left, so the relationship never shows, and the extra UI adds clutter.</dd>
+            </div>
+            <div>
+              <dt>Why it matters</dt>
+              <dd>A tedious filter that does not change ranking or encoding is ineffective. Viewers still cannot see how income sits with happiness.</dd>
+            </div>
+            <div class="critique-response">
+              <dt>How it could be improved</dt>
+              <dd>Replace that filter with income-group pills that fade groups on the map, and pull income out as its own GDP–happiness scatter.</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
     </section>
 
     <section class="chart-shell lab-note" aria-labelledby="redesign-title">
       <div class="chart-heading">
         <div>
           <h2 id="redesign-title">4. Redesign</h2>
-          <p>Dorling-style map with a linked country list. Color is happiness versus the year’s global average. Area is population. Change views stay under the map.</p>
+          <p>Dorling-style map with a linked country list. Color is happiness versus the year’s global average. Area is population. Ranking, change, and trajectories open as notes on the map. The map year stays discrete, so color jumps year to year. Play is continuous only in the three notes.</p>
         </div>
         <span id="project-status" class="chart-key">Loading</span>
       </div>
@@ -123,13 +225,69 @@
               <div class="color-legend" id="color-legend"></div>
               <div class="legend-ends"><span>Below average</span><span>Average</span><span>Above average</span></div>
             </div>
-            <div>
+            <div class="size-legend-block">
               <p class="control-label">Circle area = population</p>
               <div class="size-legend" id="size-legend"></div>
             </div>
           </div>
           <div class="map-stage">
             <div id="dorling-map" role="img" aria-label="Dorling-style map of life satisfaction"></div>
+            <div class="map-buoys" aria-label="Linked views">
+              <button id="rank-buoy" class="map-buoy" type="button" aria-expanded="false" aria-controls="rank-panel">Linked ranking</button>
+              <button id="change-buoy" class="map-buoy" type="button" aria-expanded="false" aria-controls="change-panel">Current score vs. Change</button>
+              <button id="traj-buoy" class="map-buoy" type="button" aria-expanded="false" aria-controls="traj-panel">Trajectories</button>
+            </div>
+            <aside class="float-card" id="rank-panel" hidden aria-label="Linked ranking">
+              <div class="float-card-head">
+                <p class="control-label">Linked ranking</p>
+                <button id="close-rank" type="button">Close</button>
+              </div>
+              <p class="float-card-note">Selected countries and continents share a 0–10 axis. The highest score stays first. Play or drag the year bar; it stays in sync with the map. Scores interpolate between years, and the order updates as one country passes another.</p>
+              <div class="change-year-row">
+                <button id="rank-year-toggle" class="change-year-toggle" type="button" aria-label="Play years">
+                  <svg class="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L13 8z"/></svg>
+                  <svg class="pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+                </button>
+                <label for="rank-year-slider">Year</label>
+                <input class="note-year-slider" type="range" id="rank-year-slider" min="2011" max="2025" step="1" value="2025">
+                <strong class="note-year-readout" id="rank-year-readout">2025</strong>
+              </div>
+              <div id="rank-chart" role="img" aria-label="Horizontal ranking of selected countries and continents"></div>
+            </aside>
+            <aside class="float-card" id="change-panel" hidden aria-label="Current score versus change">
+              <div class="float-card-head">
+                <p class="control-label">Current score vs. Change</p>
+                <button id="close-change" type="button">Close</button>
+              </div>
+              <p class="float-card-note">Horizontal position is this year’s score. Vertical position is change from each country’s first year to the selected year. Play moves the points continuously. The year bar stays in sync with the map.</p>
+              <div class="change-year-row">
+                <button id="change-year-toggle" class="change-year-toggle" type="button" aria-label="Play years">
+                  <svg class="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L13 8z"/></svg>
+                  <svg class="pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+                </button>
+                <label for="change-year-slider">Change since</label>
+                <input class="note-year-slider" type="range" id="change-year-slider" min="2011" max="2025" step="1" value="2025">
+                <strong class="note-year-readout" id="change-year-readout">2025</strong>
+              </div>
+              <div id="change-chart" role="img" aria-label="Scatterplot of happiness versus change over time"></div>
+            </aside>
+            <aside class="float-card" id="traj-panel" hidden aria-label="Trajectories">
+              <div class="float-card-head">
+                <p class="control-label">Trajectories</p>
+                <button id="close-traj" type="button">Close</button>
+              </div>
+              <p class="float-card-note">Lines follow selected countries or continents from 2011 to the current year. The x-axis grows continuously: in 2015 it is 2011 to 2015, and 2015 shifts left as later years arrive. Play or drag the year bar; it stays in sync with the map.</p>
+              <div class="change-year-row">
+                <button id="traj-year-toggle" class="change-year-toggle" type="button" aria-label="Play years">
+                  <svg class="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L13 8z"/></svg>
+                  <svg class="pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+                </button>
+                <label for="traj-year-slider">Year</label>
+                <input class="note-year-slider" type="range" id="traj-year-slider" min="2011" max="2025" step="1" value="2025">
+                <strong class="note-year-readout" id="traj-year-readout">2025</strong>
+              </div>
+              <div id="trajectory-chart" role="img" aria-label="Happiness trajectories for selected countries"></div>
+            </aside>
             <button id="toggle-list" class="list-tab" type="button" aria-expanded="false" aria-controls="entity-panel">Show list</button>
             <aside class="entity-panel" id="entity-panel" hidden aria-label="Country and continent list">
               <div class="entity-panel-head">
@@ -162,76 +320,145 @@
               <div id="entity-list"></div>
             </aside>
           </div>
-          <div class="redesign-views">
-            <div>
-              <h3 class="findings-block">Current score and change</h3>
-              <div id="change-chart" role="img" aria-label="Scatterplot of happiness versus change over time"></div>
-            </div>
-            <div>
-              <h3 class="findings-block">Trajectories</h3>
-              <div id="trajectory-chart" role="img" aria-label="Happiness trajectories for selected countries"></div>
-            </div>
-          </div>
         </div>
       </div>
 
-      <p class="map-note">Each circle is a country, placed near its geographic position and nudged apart so they do not overlap. Use <em>Show list</em> to open a hideable ranking bar with search, sort, and country or continent selection. The map stays full width when the list is closed.</p>
+      <p class="map-note">Each circle is a country, placed near its geographic position and nudged apart so they do not overlap. The faint labels sit in the empty lower-left corner of the map, left of Africa. They open ranking, change, and trajectory notes. Drag a note to move it. Use <em>Show list</em> for the hideable country list.</p>
+
+      <div class="gdp-block" aria-label="Income and life satisfaction">
+        <h3>Income and life satisfaction</h3>
+        <p>A second, separate view. Horizontal position is GDP per capita (income). Vertical position is life satisfaction. Circle area is population. Click a country to select it; the border gets bold, and you can select more than one. Click it again to deselect. The year bar below is independent of the map above.</p>
+        <div class="lab-controls" aria-label="Income scatter year">
+          <button id="gdp-play" type="button">Play</button>
+          <button id="gdp-pause" type="button">Pause</button>
+          <button id="gdp-reset" type="button">Reset</button>
+          <label class="control-field control-field-wide" for="gdp-year-slider">
+            <span class="control-label">Year <span id="gdp-year-readout">2025</span></span>
+            <input type="range" id="gdp-year-slider" min="2011" max="2025" step="1" value="2025">
+          </label>
+        </div>
+        <div id="gdp-chart" role="img" aria-label="Scatterplot of GDP per capita versus life satisfaction"></div>
+      </div>
 
       <div class="encoding-guide" aria-label="Redesign encoding guide">
         <h3>Visual Encoding Guide</h3>
         <p><strong>Geographic position</strong>: approximate country location, then collision so circles do not sit on top of each other.</p>
         <p><strong>Life satisfaction</strong>: blue–neutral–red diverging color. Blue is below that year’s global average, red is above it.</p>
-        <p><strong>Population</strong>: circle area on the map and on the change scatter.</p>
-        <p><strong>Income group</strong>: World Bank average-income groups, multi-select. Unchecked groups fade on the map.</p>
-        <p><strong>Exact values</strong>: hover a circle or a list row for score, rank, population, income, and change.</p>
-        <p><strong>Change over time</strong>: the scatter and trajectories sit under the map so they stay in view with the selection.</p>
+        <p><strong>Population</strong>: circle area on the map, on the change scatter, and on the income scatter. The size legend is a horizontal series of circles; only 5M, 50M, and 500M are labeled.</p>
+        <p><strong>Income group</strong>: World Bank average income groups, multi-select. Unchecked groups fade on the map. The number on each pill is that group’s mean score for the selected year.</p>
+        <p><strong>Year</strong>: the slider above the map sets the year. The map jumps from one year to the next, so yearly color change stays readable. Play is continuous only in the three notes, interpolating ranks, change, and trajectories so small movements stay visible. The same year also drives those notes. There is no 2013 in the series, so the control jumps from 2012 to 2014.</p>
+        <p><strong>Exact values</strong>: hover a circle or a list row for score, rank, population, income, and change since the country’s first year.</p>
+        <p><strong>Selection</strong>: click a map circle or a list row. The two stay in sync. Use <em>Cancel selection</em> in the list to clear the current set.</p>
+        <p><strong>Tabs</strong>: labels on the map open extra views. The list tab sits on the right edge. The three faint labels sit at the lower left.</p>
+        <div class="encoding-sub">
+          <p><strong>Country list</strong>: <em>Show list</em> opens a hideable search, sort, and filter list so the map stays full width until you need names.</p>
+          <p><strong>Linked ranking</strong>: selected countries and continents share one 0–10 bar axis, so small score gaps are easier to read than color. The highest score is always first. Play interpolates the bars and reorders them when one score passes another. The year bar stays in sync with the map. If nothing is selected, the note says “Select a country or continent.”</p>
+          <p><strong>Current score vs. Change</strong>: horizontal position is this year’s score. Vertical position is change from each country’s first year to the selected year. Play moves the points continuously. The year bar stays in sync with the map.</p>
+          <p><strong>Trajectories</strong>: line paths follow the current selection from 2011 to the current year. The x-axis grows continuously: in 2015 it is 2011 to 2015, and 2015 shifts left as later years arrive. The finished year 2025 fills 2011 to 2025. Play or drag the year bar; it stays in sync with the map.</p>
+        </div>
+        <p><strong>Notes</strong>: labels stay faint until hover. A note opens only on click, with Close. Notes start in the lower-left corner and stack like sticky notes if several are open. Drag a note’s header to move it.</p>
+        <p><strong>Income and life satisfaction</strong>: a separate scatter below the map. Horizontal position is GDP per capita on a log scale. Vertical position is life satisfaction. Area is still population. Color follows the same below/above-average scale. Click a country to select it; the border gets bold, and more than one country can be selected. Click it again to deselect. Its Play, Pause, Reset, and year bar do not move the map year.</p>
       </div>
     </section>
 
-    <section class="chart-shell lab-note" aria-labelledby="decisions-title">
-      <div class="chart-heading">
+    <section class="chart-shell lab-note decisions-shell" aria-labelledby="decisions-title">
+      <div class="chart-heading decisions-heading">
         <div>
-          <h2 id="decisions-title">5. Design Decisions</h2>
-          <p>Three changes, each tied to a problem in the critique.</p>
+          <div class="twin-titles">
+            <h2 id="decisions-title">5. Design Decisions</h2>
+            <h2 id="compare-title">Original vs. Redesign</h2>
+          </div>
+          <p>Four answers to the four weaknesses. Then the layout that holds them on one map, and the trade-off that follows.</p>
         </div>
       </div>
-      <h3 class="findings-block">1. Diverging color around the global average</h3>
-      <p>I replaced the original sequential green scale with a blue–neutral–red scale centered on that year’s mean. Blue means lower than average, red means higher. This addresses the weak meaning of “a slightly darker green.” Viewers can now see who sits below or above the world, not only who is darker.</p>
-      <h3 class="findings-block">2. Dorling circles sized by population</h3>
-      <p>I dropped country land area as a visual variable. Each country is a circle near its real location. Area encodes population, which people already treat as a measure of how many lives a score represents. An income-group filter lets users compare countries with similar economic conditions. Small countries stay visible and clickable. This addresses the land-area bias of the choropleth.</p>
-      <h3 class="findings-block">3. Linked ranking, change scatter, and trajectories</h3>
-      <p>Color still cannot carry a 0.3-point gap. Selected countries share a 0–10 ranking axis, so small differences become bar length. The scatter places a country by current score and by change since its first year, so a high-but-falling country is no longer confused with a lower-but-rising one. Trajectories show the path, not only the latest map. This addresses both precise comparison and invisible temporal change.</p>
-    </section>
 
-    <section class="chart-shell lab-note" aria-labelledby="compare-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="compare-title">6. Original vs. Redesign</h2>
-          <p>What became easier, and what was traded away.</p>
-        </div>
+      <div class="decision-stack" aria-label="Four design decisions">
+        <article>
+          <p class="critique-index">01 Color</p>
+          <h3>Two colors, chosen for contrast</h3>
+          <p>I replaced the original sequential white ramp with a two-hue scale: blue below that year’s global mean, red above it, and a quiet neutral at the center. I chose only two colors on purpose. A long white scale hides the middle. Scores of 6.5 and 6.8 looked like the same country, and a third or fourth hue would invent categories the Cantril Ladder does not have. Blue versus red is a strong contrast. Once the scale is anchored on the mean, countries just below and just above average pull toward opposite hues, so mid-range values can actually be told apart instead of collapsing into one wash of white. The split also makes the world average itself obvious: the neutral middle is the global mean, so a viewer can see who sits on the world line without opening a tooltip. Color still cannot carry every 0.3-point gap on its own, so selected countries also share a linked 0–10 ranking bar. That answers weakness 01, Color: the map now makes a comparison, and the bar is there when the last gap still needs a shared axis.</p>
+        </article>
+        <article>
+          <p class="critique-index">02 Land area</p>
+          <h3>Land no longer owns the picture; population does</h3>
+          <p>I dropped country polygons. Each country is a Dorling circle near its real location, nudged apart so they do not overlap. The rationale is simple: land area has nothing to do with life satisfaction, but Canada and Russia used to own the screen. After color is only two hues, size is free, so circle area now encodes how many people live behind a score. A large circle is a large population; a small happy country stays visible and clickable instead of vanishing into a coastline. Names live in a hideable list on the right, so the map can stay full width until someone needs search or sort. The picture is no longer ruled by land. That answers weakness 02, Land area, and it adds a visual that the choropleth never had.</p>
+        </article>
+        <article>
+          <p class="critique-index">03 Time</p>
+          <h3>Ranking, change, and trajectories stay on the map</h3>
+          <p>The original map showed one year. Rise and fall lived in memory: a high-but-falling country and a low-but-rising one could share one color. I added three notes on the map. Each note has the same year bar as the map, so play or drag stays in sync. The map year stays discrete. Color and size jump from one year to the next, because a still yearly snapshot is the clearer way to see who crossed the world average, and because a mid-year wash would blur the two-hue split. Continuous interpolation belongs in the notes, where the question is trend and small change rather than a yearly color. Linked ranking puts selected countries and continents on one 0–10 bar axis. The highest score is always first. Scores interpolate, and the bars reorder when one country passes another, so a 0.2-point swap is visible instead of a sudden jump. Current score vs. Change places this year’s happiness on the x-axis and change since each country’s first year on the y-axis. The points slide continuously, so a tiny rise or fall is a path, not two still frames. Trajectories draw the path of a selection, but the x-axis is not locked to 2011–2025. It runs from 2011 to the current year. When the year is 2015, the axis is 2011 to 2015. As time moves on, 2015 shifts left, and the finished year 2025 fills the axis. Lines only draw up to the current year, and the tip interpolates so the last segment grows instead of appearing all at once. Putting those views in a second row below the fold would have broken the comparison: scroll, lose the map, and the views stop talking to each other. That answers weakness 03, Time: the map keeps a readable yearly color, and ranking, change, and path move continuously on the same canvas.</p>
+        </article>
+        <article>
+          <p class="critique-index">04 Income filter</p>
+          <h3>Income leaves the filter and becomes a chart</h3>
+          <p>I removed the original income filter. It was only a filter option: sort stayed the old order, income appeared as gray text on the left, and the extra UI added clutter without showing a relationship. Income groups are now multi-select pills that fade other groups on the map; the number on each pill is that group’s mean score for the year. GDP per capita and life satisfaction sit on their own scatter below the map, with an independent Play, Pause, Reset, and year bar. Circle area on that scatter is still population; color still follows the two-hue scale. The pills change focus without pretending to rank by income. The scatter puts GDP on the x-axis and happiness on the y-axis, so the link is the picture instead of a footnote. That answers weakness 04, Income filter.</p>
+        </article>
       </div>
-      <p>The original map is still the faster way to recognize a familiar country shape and get a quick geographic overview. The redesign keeps overview, year filtering, and details-on-demand, but it adds encodings that the choropleth cannot carry. Users can compare selected countries on one axis, see how happiness sits with population and income, and tell improvement from decline without relying on memory.</p>
-      <p>The main trade-off is complexity. The choropleth is immediately familiar. Circles, a diverging scale, and coordinated views take longer to learn. The Dorling map also gives up exact borders. That is intentional: land area was the misleading variable. What remains is approximate geography plus a size that means population.</p>
-    </section>
 
-    <section class="chart-shell lab-note" aria-labelledby="sources-title">
-      <div class="chart-heading">
-        <div>
-          <h2 id="sources-title">7. Data Sources and References</h2>
-          <p>External CSV files, joined locally for the redesign.</p>
+      <div class="decision-overall">
+        <div class="decision-overall-lead">
+          <p class="critique-index">Overall</p>
+          <h3>Special Innovative Overall Design</h3>
+        </div>
+        <div class="decision-overall-copy" aria-label="Overall design decisions">
+          <article>
+            <h3>A comparison below the fold is not a comparison</h3>
+            <p>If ranking, change, and trajectories sat in a second row, viewers would scroll, lose the map, and the views would stop talking to each other. Those three questions have to stay on the same canvas as the circles, or the redesign is just another page of charts.</p>
+          </article>
+          <article>
+            <h3>Four charts become one canvas</h3>
+            <p>The original site split those questions across four charts. Viewers had to jump from one picture to another, so a comparison was never in one place and never intuitive. I put part of that work on a single map. Ranking, change, and trajectories open as notes on the same canvas, share one year bar with the map, and stay more concise and easier to compare, without crowding the main map.</p>
+          </article>
+          <article>
+            <h3>Notes you can place yourself</h3>
+            <p>Those views are sticky notes on the map. The three buoys stay faint in the empty lower left, west of Africa. They do not compete with the circles. Click opens a note. The innovative part is that a note is not locked to a sidebar: viewers can drag it to any empty place they want, beside a cluster, off the circles, stacked, or spread out, and close it when they are done.</p>
+          </article>
+          <article>
+            <h3>The map stays the center</h3>
+            <p>The country list is a tab on the right edge. The three notes sit lower left. Extra tools gather at top-right and lower-left, so the map stays the center and the page stays balanced. The extra views appear only when asked, and the layout belongs to the reader.</p>
+          </article>
+          <article>
+            <h3>Discrete years on the map, continuous notes</h3>
+            <p>Time is split on purpose. The map year stays discrete, so yearly color is easy to read: a viewer can see who crossed the world average from one year to the next. Continuous interpolation lives in the three notes, where the question is trend and small change. Linked ranking can show a 0.2-point swap as one bar passes another. Change points slide instead of jumping. The last segment of a trajectory grows forward instead of appearing as a new still frame. Discrete color and continuous notes do different jobs, and both stay on the same canvas.</p>
+          </article>
+        </div>
+        <aside class="decision-overall-aside">
+          <p class="critique-index">Then, separately</p>
+          <h3>Income and life satisfaction</h3>
+          <p>GDP is not a geographic variable. Putting it on the same canvas as the Dorling map would ask one picture to do two jobs. A scatter below the map, with its own year play, lets income be position instead of a footnote in gray type. Click a country to select it; the border gets bold, and more than one country can stay selected. Click it again to deselect.</p>
+        </aside>
+      </div>
+
+      <div class="decision-tradeoff">
+        <div class="decision-tradeoff-lead">
+          <p class="critique-index">Original vs. Redesign</p>
+          <h3>What I give up, and why the new design is stronger</h3>
+        </div>
+        <div class="decision-tradeoff-copy">
+          <p>The original map is still the faster way to recognize a familiar country shape. Familiar is not the same as readable. The redesign keeps overview, year, and details-on-demand, and it finally encodes what the choropleth could not: two contrasting colors around the world average, population as size, small gaps as ranks, and change as a position instead of a memory test.</p>
+          <p>The clearest trade-off is the income split. Once GDP and happiness live on their own scatter, they leave the map. You cannot look at Finland’s circle and, in the same glance, see where it sits on GDP. Place and population stay on the Dorling map; income and happiness sit one scroll below. That is the price of making the relationship visible. The original filter kept everything “on the map” and still hid the link. I would rather split the views than fake a relationship with gray text.</p>
+          <p>There are smaller trade-offs too. Circles are not borders. A two-color scale takes a moment to learn. Coordinated notes ask the viewer to click. Those costs are intentional: land area was the wrong size, “slightly darker green” was the wrong comparison, and a second row of charts would have broken the map. What I get back is a design that can actually be used: color that splits the middle, size that means people, time viewers do not have to remember, notes they can place themselves, and an income chart that shows a relationship instead of a label.</p>
         </div>
       </div>
-      <ul class="source-list">
-        <li>Our World in Data. “Self-reported life satisfaction.” <a href="https://ourworldindata.org/grapher/happiness-cantril-ladder?time=2020">https://ourworldindata.org/grapher/happiness-cantril-ladder</a></li>
-        <li>Wellbeing Research Centre. <em>World Happiness Report 2026</em>, based on the Gallup World Poll. <a href="https://www.worldhappiness.report/ed/2026/">https://www.worldhappiness.report/ed/2026/</a></li>
-        <li>Happiness series used in the redesign: <a href="https://ourworldindata.org/grapher/happiness-cantril-ladder.csv">happiness-cantril-ladder.csv</a></li>
-        <li>Population: Our World in Data / UN World Population Prospects, <a href="https://ourworldindata.org/grapher/population">population</a></li>
-        <li>Income groups: World Bank classification via Our World in Data, <a href="https://ourworldindata.org/grapher/world-bank-income-groups">world-bank-income-groups</a></li>
-        <li>Country centroids: <a href="https://github.com/gavinr/world-countries-centroids">gavinr/world-countries-centroids</a>, joined on ISO codes</li>
-      </ul>
-      <p>The joined table is <code>data/project_life_satisfaction.csv</code>. Aggregates such as World or continents were dropped. Population for 2024–2025 uses the nearest available year, usually 2023. Income group uses the nearest year when a year is missing. Kosovo, Northern Cyprus, and Somaliland are omitted because they do not have standard ISO-3 centroids in that lookup.</p>
     </section>
   </main>
+
+    <section class="project-sources" aria-labelledby="sources-title">
+      <div class="project-sources-inner">
+        <h2 id="sources-title">Data Sources and References</h2>
+        <p>External CSV files, joined locally for the redesign.</p>
+        <ul class="source-list">
+          <li>Our World in Data. “Self-reported life satisfaction.” <a href="https://ourworldindata.org/grapher/happiness-cantril-ladder?time=2020">https://ourworldindata.org/grapher/happiness-cantril-ladder</a></li>
+          <li>Wellbeing Research Centre. <em>World Happiness Report 2026</em>, based on the Gallup World Poll. <a href="https://www.worldhappiness.report/ed/2026/">https://www.worldhappiness.report/ed/2026/</a></li>
+          <li>Happiness series used in the redesign: <a href="https://ourworldindata.org/grapher/happiness-cantril-ladder.csv">happiness-cantril-ladder.csv</a></li>
+          <li>Population: Our World in Data / UN World Population Prospects, <a href="https://ourworldindata.org/grapher/population">population</a></li>
+          <li>Income groups: World Bank classification via Our World in Data, <a href="https://ourworldindata.org/grapher/world-bank-income-groups">world-bank-income-groups</a></li>
+          <li>GDP per capita: Our World in Data / World Bank, <a href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank">gdp-per-capita-worldbank</a></li>
+          <li>Country centroids: <a href="https://github.com/gavinr/world-countries-centroids">gavinr/world-countries-centroids</a>, joined on ISO codes</li>
+        </ul>
+        <p>The joined table is <code>data/project_life_satisfaction.csv</code>. Aggregates such as World or continents were dropped. Population for 2024–2025 uses the nearest available year, usually 2023. Income group and GDP per capita use the nearest year when a year is missing. Kosovo, Northern Cyprus, and Somaliland are omitted because they do not have standard ISO-3 centroids in that lookup.</p>
+      </div>
+    </section>
 
   <div id="project-tooltip" class="tooltip" role="tooltip"></div>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>

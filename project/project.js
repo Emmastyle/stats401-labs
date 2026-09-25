@@ -25,8 +25,19 @@ const state = {
   land: null,
   positions: new Map(),
   timer: null,
+  tween: null,
+  t: DEFAULT_YEAR,
   scrollTo: null,
 };
+
+const gdpState = {
+  year: DEFAULT_YEAR,
+  t: DEFAULT_YEAR,
+  timer: null,
+  tween: null,
+};
+const GDP_YEAR_MS = 1150;
+const MAP_YEAR_MS = 1150;
 
 const tooltip = d3.select("#project-tooltip");
 
@@ -46,13 +57,121 @@ function formatChange(value) {
   return (value > 0 ? "+" : "") + d3.format(".2f")(value);
 }
 
+function formatGdp(value) {
+  if (value == null || Number.isNaN(value)) return "—";
+  return d3.format("$,.0f")(value);
+}
+
+function formatGdpTick(value) {
+  return "$" + d3.format("~s")(value).replace("G", "B");
+}
+
+function syncPlayUi() {
+  const playing = Boolean(state.timer);
+  d3.selectAll(".change-year-toggle")
+    .attr("aria-label", playing ? "Pause years" : "Play years")
+    .classed("is-playing", playing);
+}
+
+function stopTween() {
+  if (state.tween) state.tween.stop();
+  state.tween = null;
+}
+
+function currentT() {
+  return state.t == null ? state.year : state.t;
+}
+
+function displayYear(t) {
+  const years = state.years;
+  if (!years.length) return Math.round(t);
+  let year = years[0];
+  years.forEach((item) => {
+    if (item <= t + 1e-6) year = item;
+  });
+  return year;
+}
+
+function startTimer() {
+  if (state.timer) return;
+  stopTween();
+  state.t = currentT();
+  let last = performance.now();
+  const first = state.years[0];
+  const finalYear = state.years[state.years.length - 1];
+  state.timer = d3.timer(() => {
+    const now = performance.now();
+    state.t += (now - last) / MAP_YEAR_MS;
+    last = now;
+    if (state.t > finalYear) state.t = first;
+    const nextYear = displayYear(state.t);
+    const yearChanged = nextYear !== state.year;
+    state.year = nextYear;
+    syncYearControls(state.year);
+    renderAll({ notesOnly: !yearChanged, skipGdp: true });
+  });
+  syncPlayUi();
+}
+
 function stopTimer() {
   if (state.timer) state.timer.stop();
   state.timer = null;
+  stopTween();
+  syncPlayUi();
+}
+
+function toggleTimer() {
+  if (state.timer) stopTimer();
+  else startTimer();
+}
+
+function nearestYears(t) {
+  const years = state.years;
+  if (!years.length) return [DEFAULT_YEAR, DEFAULT_YEAR, 0];
+  if (t <= years[0]) return [years[0], years[0], 0];
+  if (t >= years[years.length - 1]) return [years[years.length - 1], years[years.length - 1], 0];
+  let index = 0;
+  while (index < years.length - 1 && years[index + 1] <= t) index += 1;
+  const start = years[index];
+  const end = years[Math.min(index + 1, years.length - 1)];
+  if (start === end) return [start, end, 0];
+  return [start, end, (t - start) / (end - start)];
+}
+
+function interpolateRow(a, b, u, t) {
+  const src = b || a;
+  const first = firstRecord(src.iso);
+  const happiness = lerp(a?.happiness, b?.happiness, u);
+  const population = lerp(a?.population, b?.population, u);
+  return {
+    ...src,
+    happiness,
+    population,
+    year: t,
+    baseYear: first ? first.year : null,
+    change: first && happiness != null ? happiness - first.happiness : null,
+  };
+}
+
+function rowsAt(t) {
+  const [yearA, yearB, u] = nearestYears(t);
+  const mapA = new Map(state.rows.filter((row) => row.year === yearA).map((row) => [row.iso, row]));
+  const mapB = new Map(state.rows.filter((row) => row.year === yearB).map((row) => [row.iso, row]));
+  const items = [];
+  new Set([...mapA.keys(), ...mapB.keys()]).forEach((iso) => {
+    const row = interpolateRow(mapA.get(iso), mapB.get(iso), u, t);
+    if (row.happiness == null) return;
+    items.push(row);
+  });
+  return items;
 }
 
 function visibleRows() {
   return state.rows.filter((row) => row.year === state.year);
+}
+
+function liveRows() {
+  return enrich(rowsAt(currentT()));
 }
 
 function incomeActive() {
@@ -69,6 +188,40 @@ function activeRows() {
 
 function firstRecord(iso) {
   return (state.byIso.get(iso) || [])[0] || null;
+}
+
+function syncYearControls(year) {
+  d3.selectAll("#year-slider, .note-year-slider").property("value", year);
+  d3.select("#year-readout").text(year);
+  d3.selectAll(".note-year-readout").text(year);
+}
+
+function setYear(year, options) {
+  year = +year;
+  if (YEARS_WITH_GAP.includes(year)) year = 2014;
+  const animateNotes = !options || options.animate !== false;
+  const from = currentT();
+  state.year = year;
+  syncYearControls(year);
+  stopTween();
+  if (!animateNotes || Math.abs(from - year) < 0.02) {
+    state.t = year;
+    renderAll();
+    return;
+  }
+  renderAll({ mapOnly: true });
+  const duration = Math.min(900, 260 + Math.abs(year - from) * 160);
+  const started = performance.now();
+  state.tween = d3.timer(() => {
+    const u = Math.min(1, (performance.now() - started) / duration);
+    state.t = from + (year - from) * d3.easeCubicInOut(u);
+    renderAll({ notesOnly: true });
+    if (u >= 1) {
+      stopTween();
+      state.t = year;
+      renderAll({ notesOnly: true });
+    }
+  });
 }
 
 function enrich(rows) {
@@ -145,6 +298,7 @@ function showTooltip(event, row, mean) {
       `Score ${formatScore(row.happiness)}` +
       (row.rank ? ` · rank ${row.rank} of ${visibleRows().length}` : "") +
       `<br>Population ${formatPop(row.population)}<br>` +
+      (row.gdp != null ? `GDP per capita ${formatGdp(row.gdp)}<br>` : "") +
       `${row.kind === "continent" ? "Continent average" : `Income ${row.income_group}`}<br>` +
       `Change since ${row.baseYear} ${formatChange(row.change)}<br>` +
       `Year average ${formatScore(mean)}`
@@ -187,6 +341,99 @@ function setListOpen(open) {
     .attr("aria-expanded", open);
 }
 
+const FLOAT_PANELS = ["rank-panel", "change-panel", "traj-panel"];
+const floatState = {
+  order: [],
+  pos: new Map(),
+};
+
+function floatBuoy(id) {
+  return document.querySelector(`.map-buoy[aria-controls="${id}"]`);
+}
+
+function applyFloatLayout(id) {
+  const el = document.getElementById(id);
+  if (!el || el.hidden) return;
+  const dragged = floatState.pos.get(id);
+  const index = Math.max(floatState.order.indexOf(id), 0);
+  if (dragged) {
+    el.style.left = `${dragged.left}px`;
+    el.style.top = `${dragged.top}px`;
+    el.style.bottom = "auto";
+  } else {
+    el.style.left = `${12 + index * 16}px`;
+    el.style.bottom = `${12 + index * 16}px`;
+    el.style.top = "auto";
+  }
+  el.style.zIndex = 11 + index;
+}
+
+function setFloatOpen(id, open) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.hidden = !open;
+  const buoy = floatBuoy(id);
+  if (buoy) {
+    buoy.classList.toggle("is-open", open);
+    buoy.setAttribute("aria-expanded", open);
+  }
+  if (open) {
+    if (!floatState.order.includes(id)) floatState.order.push(id);
+  } else {
+    floatState.order = floatState.order.filter((item) => item !== id);
+    floatState.pos.delete(id);
+    el.style.left = "";
+    el.style.top = "";
+    el.style.bottom = "";
+  }
+  floatState.order.forEach(applyFloatLayout);
+  if (open) renderAll();
+}
+
+function closeAllFloats() {
+  FLOAT_PANELS.forEach((id) => setFloatOpen(id, false));
+}
+
+function bindFloatDrag(id) {
+  const el = document.getElementById(id);
+  const head = el && el.querySelector(".float-card-head");
+  if (!head) return;
+  let start = null;
+  head.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    const stage = document.querySelector(".map-stage").getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    start = {
+      x: event.clientX,
+      y: event.clientY,
+      left: rect.left - stage.left,
+      top: rect.top - stage.top,
+    };
+    floatState.order = floatState.order.filter((item) => item !== id).concat(id);
+    el.classList.add("is-dragging");
+    applyFloatLayout(id);
+    head.setPointerCapture(event.pointerId);
+  });
+  head.addEventListener("pointermove", (event) => {
+    if (!start) return;
+    const stage = document.querySelector(".map-stage").getBoundingClientRect();
+    let left = start.left + (event.clientX - start.x);
+    let top = start.top + (event.clientY - start.y);
+    left = Math.max(8, Math.min(left, stage.width - el.offsetWidth - 8));
+    top = Math.max(8, Math.min(top, stage.height - el.offsetHeight - 8));
+    floatState.pos.set(id, { left, top });
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    el.style.bottom = "auto";
+  });
+  const endDrag = () => {
+    start = null;
+    el.classList.remove("is-dragging");
+  };
+  head.addEventListener("pointerup", endDrag);
+  head.addEventListener("pointercancel", endDrag);
+}
+
 function clearSelection() {
   state.selected.clear();
   state.selectedContinents.clear();
@@ -198,6 +445,8 @@ function clearSelection() {
 function resetView() {
   stopTimer();
   state.year = state.years.includes(DEFAULT_YEAR) ? DEFAULT_YEAR : state.years[state.years.length - 1];
+  state.t = state.year;
+  stopTween();
   state.incomes = new Set(INCOME_GROUPS.map((item) => item.id));
   state.selected.clear();
   state.selectedContinents.clear();
@@ -206,11 +455,12 @@ function resetView() {
   state.sort = "score-desc";
   state.type = "countries";
   state.scrollTo = null;
-  d3.select("#year-slider").property("value", state.year);
+  syncYearControls(state.year);
   d3.select("#entity-search").property("value", "");
   d3.select("#entity-sort").property("value", "score-desc");
   d3.select("#entity-type").property("value", "countries");
   setListOpen(false);
+  closeAllFloats();
   hideTooltip();
   renderAll();
 }
@@ -277,20 +527,21 @@ function drawColorLegend(scale, rows) {
 function drawSizeLegend(radius) {
   const pops = [1e6, 2e6, 5e6, 1e7, 2e7, 5e7, 1e8, 2e8, 5e8];
   const labeled = new Map([[5e6, "5M"], [5e7, "50M"], [5e8, "500M"]]);
-  const maxR = radius(5e8);
-  const gap = 8;
-  const pad = 8;
+  const legendR = (pop) => radius(pop) * 0.48;
+  const maxR = legendR(5e8);
+  const gap = 2;
+  const pad = 2;
   const items = [];
   let cx = pad;
   pops.forEach((pop) => {
-    const r = radius(pop);
+    const r = legendR(pop);
     cx += r;
     items.push({ pop, r, cx, label: labeled.get(pop) || null });
     cx += r + gap;
   });
-  const width = Math.max(cx, 280);
-  const height = maxR * 2 + 26;
-  const baseline = maxR + 6;
+  const width = Math.max(cx, 200);
+  const height = maxR * 2 + 16;
+  const baseline = maxR + 1;
   const svg = d3.select("#size-legend").selectAll("svg").data([null]);
   const root = svg.enter().append("svg").merge(svg).attr("viewBox", `0 0 ${width} ${height}`);
   root.selectAll("*").remove();
@@ -304,7 +555,7 @@ function drawSizeLegend(radius) {
     if (item.label) {
       root.append("text")
         .attr("x", item.cx)
-        .attr("y", baseline + maxR + 14)
+        .attr("y", baseline + maxR + 10)
         .attr("text-anchor", "middle")
         .attr("fill", "#65706b")
         .attr("font-size", 11)
@@ -313,7 +564,7 @@ function drawSizeLegend(radius) {
   });
 }
 
-function drawDorling(rows, color, radius, mean) {
+function drawDorling(rows, color, radius, mean, options) {
   const { width, height } = chartSize("#dorling-map", 520);
   const svg = d3.select("#dorling-map").selectAll("svg").data([null]);
   const root = svg.enter().append("svg").merge(svg)
@@ -350,7 +601,8 @@ function drawDorling(rows, color, radius, mean) {
     .force("y", d3.forceY((d) => d.ty).strength(0.16))
     .force("collide", d3.forceCollide((d) => d.r + 1.15).iterations(3))
     .stop();
-  for (let i = 0; i < 140; i += 1) simulation.tick();
+  const ticks = options && options.light ? 16 : 140;
+  for (let i = 0; i < ticks; i += 1) simulation.tick();
   nodes.forEach((node) => state.positions.set(node.iso, { x: node.x, y: node.y }));
 
   const faded = visibleRows()
@@ -449,13 +701,92 @@ function drawEntityList(yearRows, color, mean) {
   row.select(".entity-score").text((d) => formatScore(d.happiness));
 
   if (state.scrollTo) {
-    const node = row.filter((d) => d.iso === state.scrollTo).node();
-    if (node) node.scrollIntoView({ block: "nearest" });
+    const listPanel = document.getElementById("entity-panel");
+    if (listPanel && !listPanel.hidden) {
+      const node = row.filter((d) => d.iso === state.scrollTo).node();
+      if (node) node.scrollIntoView({ block: "nearest" });
+    }
     state.scrollTo = null;
   }
 }
 
+function selectedRankItems(yearRows) {
+  const countries = yearRows.filter((row) => state.selected.has(row.iso));
+  const continents = continentRows(yearRows).filter((row) => state.selectedContinents.has(row.iso));
+  return countries.concat(continents)
+    .filter((row) => row.happiness != null)
+    .sort((a, b) => d3.descending(a.happiness, b.happiness) || d3.ascending(a.country, b.country));
+}
+
+function drawRank(yearRows, color, mean) {
+  const chart = document.getElementById("rank-chart");
+  if (!chart || document.getElementById("rank-panel").hidden) return;
+  const items = selectedRankItems(yearRows);
+  const { width } = chartSize("#rank-chart", 220);
+  const rowH = 28;
+  const margin = { top: 8, right: 16, bottom: 28, left: 108 };
+  const height = items.length ? margin.top + margin.bottom + items.length * rowH : 84;
+  const svg = d3.select("#rank-chart").selectAll("svg").data([null]);
+  const root = svg.enter().append("svg").merge(svg).attr("viewBox", `0 0 ${width} ${height}`);
+  root.selectAll("*").remove();
+
+  if (!items.length) {
+    root.append("text")
+      .attr("x", width / 2)
+      .attr("y", height / 2)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#65706b")
+      .attr("font-size", 12)
+      .text("Select a country or continent.");
+    return;
+  }
+
+  const x = d3.scaleLinear().domain([0, 10]).range([margin.left, width - margin.right]);
+  root.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(5).tickSizeInner(4).tickSizeOuter(0))
+    .call((g) => g.select(".domain").attr("stroke", "#c8c1b4"))
+    .call((g) => g.selectAll("text").attr("fill", "#65706b"));
+  root.append("line")
+    .attr("x1", x(mean)).attr("x2", x(mean))
+    .attr("y1", margin.top).attr("y2", height - margin.bottom)
+    .attr("stroke", "#65706b").attr("stroke-dasharray", "3 3");
+
+  const groups = root.selectAll("g.bar-row").data(items, (d) => d.iso).join("g").attr("class", "bar-row")
+    .attr("transform", (_, i) => `translate(0,${margin.top + i * rowH})`);
+  groups.append("text")
+    .attr("x", margin.left - 8).attr("y", 16).attr("text-anchor", "end")
+    .attr("fill", "#17211d").attr("font-size", 11)
+    .text((d) => d.country);
+  groups.append("rect")
+    .attr("x", x(0)).attr("y", 6)
+    .attr("width", (d) => Math.max(x(d.happiness) - x(0), 0))
+    .attr("height", 12)
+    .attr("fill", (d) => color(d.happiness))
+    .attr("stroke", (d) => (isSelectedEntity(d) || state.hover === d.iso ? "#17211d" : "none"))
+    .style("cursor", "pointer")
+    .on("mousemove", (event, d) => {
+      state.hover = d.iso;
+      showTooltip(event, d, mean);
+      highlight(d.iso);
+    })
+    .on("mouseleave", () => {
+      state.hover = null;
+      hideTooltip();
+      highlight(null);
+    })
+    .on("click", (_, d) => {
+      if (d.kind === "continent") toggleContinent(d.iso);
+      else toggleSelect(d.iso);
+    });
+  groups.append("text")
+    .attr("x", (d) => x(d.happiness) + 6).attr("y", 16)
+    .attr("fill", "#65706b").attr("font-size", 11)
+    .text((d) => formatScore(d.happiness));
+}
+
 function drawChange(rows, color, radius, mean) {
+  if (document.getElementById("change-panel").hidden) return;
   const items = rows.filter((row) => row.change != null);
   const { width } = chartSize("#change-chart", 220);
   const height = 220;
@@ -481,9 +812,6 @@ function drawChange(rows, color, radius, mean) {
   root.append("text").attr("x", width - margin.right).attr("y", height - 6)
     .attr("text-anchor", "end").attr("fill", "#65706b").attr("font-size", 10)
     .text("Current score");
-  root.append("text").attr("x", margin.left).attr("y", 12)
-    .attr("fill", "#65706b").attr("font-size", 10)
-    .text("Change since first year");
   root.append("line").attr("x1", margin.left).attr("x2", width - margin.right)
     .attr("y1", y(0)).attr("y2", y(0)).attr("stroke", "#65706b").attr("stroke-dasharray", "3 3");
   root.append("line").attr("x1", x(mean)).attr("x2", x(mean))
@@ -511,7 +839,56 @@ function drawChange(rows, color, radius, mean) {
     .on("click", (_, d) => toggleSelect(d.iso));
 }
 
+function trajectoryTicks(endYear) {
+  const start = state.years[0] || 2011;
+  const ticks = [start];
+  [2015, 2020, 2025].forEach((year) => {
+    if (year > start && year <= endYear + 1e-6) ticks.push(year);
+  });
+  return ticks;
+}
+
+function seriesThrough(iso, name, t) {
+  const raw = (state.byIso.get(iso) || []).filter((d) => d.happiness != null && d.year <= t);
+  const [yearA, yearB, u] = nearestYears(t);
+  if (yearA !== yearB && t > yearA) {
+    const a = (state.byIso.get(iso) || []).find((d) => d.year === yearA);
+    const b = (state.byIso.get(iso) || []).find((d) => d.year === yearB);
+    const happiness = lerp(a?.happiness, b?.happiness, u);
+    if (happiness != null) {
+      raw.push({
+        year: t,
+        happiness,
+        country: name,
+        iso,
+      });
+    }
+  }
+  return raw;
+}
+
+function continentSeriesThrough(name, t) {
+  const full = continentSeries(name);
+  const raw = full.filter((d) => d.year <= t);
+  const [yearA, yearB, u] = nearestYears(t);
+  if (yearA !== yearB && t > yearA) {
+    const a = full.find((d) => d.year === yearA);
+    const b = full.find((d) => d.year === yearB);
+    const happiness = lerp(a?.happiness, b?.happiness, u);
+    if (happiness != null) {
+      raw.push({
+        year: t,
+        happiness,
+        country: name,
+        iso: name,
+      });
+    }
+  }
+  return raw;
+}
+
 function drawTrajectories(mean) {
+  if (document.getElementById("traj-panel").hidden) return;
   const { width } = chartSize("#trajectory-chart", 220);
   const height = 220;
   const margin = { top: 16, right: 88, bottom: 28, left: 30 };
@@ -519,10 +896,13 @@ function drawTrajectories(mean) {
   const root = svg.enter().append("svg").merge(svg).attr("viewBox", `0 0 ${width} ${height}`);
   root.selectAll("*").remove();
 
-  const x = d3.scaleLinear().domain([2011, 2025]).range([margin.left, width - margin.right]);
+  const startYear = state.years[0] || 2011;
+  const endYear = currentT();
+  const xMax = endYear <= startYear ? startYear + 1 : endYear;
+  const x = d3.scaleLinear().domain([startYear, xMax]).range([margin.left, width - margin.right]);
   const y = d3.scaleLinear().domain([1, 8.2]).range([height - margin.bottom, margin.top]);
   root.append("g").attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x).tickValues([2011, 2015, 2020, 2025]).tickFormat(d3.format("d")).tickSizeOuter(0))
+    .call(d3.axisBottom(x).tickValues(trajectoryTicks(endYear)).tickFormat(d3.format("d")).tickSizeOuter(0))
     .call((g) => g.select(".domain").attr("stroke", "#c8c1b4"))
     .call((g) => g.selectAll("text").attr("fill", "#65706b"));
   root.append("g").attr("transform", `translate(${margin.left},0)`)
@@ -537,12 +917,12 @@ function drawTrajectories(mean) {
     ...Array.from(state.selected).map((iso) => ({
       iso,
       name: (state.byIso.get(iso) || [])[0]?.country || iso,
-      series: (state.byIso.get(iso) || []).filter((d) => d.happiness != null),
+      series: seriesThrough(iso, (state.byIso.get(iso) || [])[0]?.country || iso, endYear),
     })),
     ...Array.from(state.selectedContinents).map((name) => ({
       iso: name,
       name,
-      series: continentSeries(name),
+      series: continentSeriesThrough(name, endYear),
     })),
   ].filter((item) => item.series.length);
 
@@ -567,7 +947,7 @@ function drawTrajectories(mean) {
       .attr("stroke", color)
       .attr("stroke-width", item.iso === state.hover ? 3 : 2)
       .attr("d", line);
-    const last = item.series.find((d) => d.year === state.year) || item.series[item.series.length - 1];
+    const last = item.series.find((d) => d.year === endYear) || item.series[item.series.length - 1];
     root.append("circle")
       .attr("cx", x(last.year)).attr("cy", y(last.happiness)).attr("r", 3.5)
       .attr("fill", color).attr("stroke", "#17211d");
@@ -578,16 +958,247 @@ function drawTrajectories(mean) {
   });
 }
 
+function gdpRows(year) {
+  return state.rows.filter((row) => (
+    row.year === year && row.gdp > 0 && row.happiness != null && row.population > 0
+  ));
+}
+
+function lerp(a, b, u) {
+  if (a == null || Number.isNaN(a)) return b;
+  if (b == null || Number.isNaN(b)) return a;
+  return a + (b - a) * u;
+}
+
+function nearestGdpYears(t) {
+  return nearestYears(t);
+}
+
+function displayGdpYear(t) {
+  let year = Math.round(t);
+  if (YEARS_WITH_GAP.includes(year)) year = t < 2013 ? 2012 : 2014;
+  return year;
+}
+
+function gdpItemsAt(t) {
+  const [yearA, yearB, u] = nearestGdpYears(t);
+  const mapA = new Map(gdpRows(yearA).map((row) => [row.iso, row]));
+  const mapB = new Map(gdpRows(yearB).map((row) => [row.iso, row]));
+  const items = [];
+  new Set([...mapA.keys(), ...mapB.keys()]).forEach((iso) => {
+    const a = mapA.get(iso);
+    const b = mapB.get(iso);
+    const src = b || a;
+    const gdp = lerp(a?.gdp, b?.gdp, u);
+    const happiness = lerp(a?.happiness, b?.happiness, u);
+    const population = lerp(a?.population, b?.population, u);
+    if (!(gdp > 0) || happiness == null || !(population > 0)) return;
+    items.push({
+      ...src,
+      gdp,
+      happiness,
+      population,
+      year: t,
+    });
+  });
+  return items;
+}
+
+function gdpLayout() {
+  const { width } = chartSize("#gdp-chart", 460);
+  const height = 460;
+  const margin = { top: 28, right: 22, bottom: 58, left: 66 };
+  const withGdp = state.rows.filter((row) => row.gdp > 0 && row.population > 0);
+  const gdpExtent = d3.extent(withGdp, (d) => d.gdp);
+  const x = d3.scaleLog()
+    .domain([Math.max(400, gdpExtent[0] * 0.9), gdpExtent[1] * 1.15])
+    .range([margin.left, width - margin.right]);
+  const y = d3.scaleLinear().domain([1.5, 8.2]).range([height - margin.bottom, margin.top]);
+  const radius = d3.scaleSqrt()
+    .domain(d3.extent(withGdp, (d) => d.population))
+    .range([3.5, 28]);
+  const allMean = d3.mean(state.rows, (d) => d.happiness);
+  const happinessExtent = d3.extent(state.rows, (d) => d.happiness);
+  const color = d3.scaleLinear()
+    .domain([happinessExtent[0], allMean, happinessExtent[1]])
+    .range(["#2c7bb6", "#f4f1e9", "#d7191c"])
+    .clamp(true);
+  return { width, height, margin, x, y, radius, color };
+}
+
+function drawGdpAxes(root, layout) {
+  const { width, height, margin, x, y } = layout;
+  const gdpTicks = [500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
+    .filter((value) => value >= x.domain()[0] && value <= x.domain()[1]);
+  root.append("g").attr("class", "gdp-axis gdp-axis-x")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).tickValues(gdpTicks).tickFormat(formatGdpTick).tickSizeOuter(0))
+    .call((g) => g.select(".domain").attr("stroke", "#c8c1b4"))
+    .call((g) => g.selectAll("text").attr("fill", "#33413b").attr("font-size", 12).attr("font-weight", 500));
+  root.append("g").attr("class", "gdp-axis gdp-axis-y")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(6).tickSizeOuter(0))
+    .call((g) => g.select(".domain").attr("stroke", "#c8c1b4"))
+    .call((g) => g.selectAll("text").attr("fill", "#33413b").attr("font-size", 12).attr("font-weight", 500));
+  root.append("text").attr("class", "gdp-axis-label")
+    .attr("text-anchor", "middle")
+    .attr("x", (width + margin.left - margin.right) / 2)
+    .attr("y", height - 10)
+    .attr("fill", "#17211d")
+    .attr("font-size", 17)
+    .attr("font-weight", 700)
+    .text("GDP per capita (income)");
+  root.append("text").attr("class", "gdp-axis-label")
+    .attr("text-anchor", "middle")
+    .attr("transform", `translate(22, ${(height + margin.top - margin.bottom) / 2}) rotate(-90)`)
+    .attr("fill", "#17211d")
+    .attr("font-size", 17)
+    .attr("font-weight", 700)
+    .text("Life satisfaction");
+  root.append("line").attr("class", "gdp-mean")
+    .attr("x1", margin.left).attr("x2", width - margin.right)
+    .attr("stroke", "#65706b").attr("stroke-dasharray", "3 3");
+  root.append("g").attr("class", "gdp-dots");
+}
+
+function updateGdpScatter() {
+  const chart = document.getElementById("gdp-chart");
+  if (!chart) return;
+  const layout = gdpLayout();
+  const svg = d3.select("#gdp-chart").selectAll("svg").data([null]);
+  const root = svg.enter().append("svg").merge(svg);
+  const sizeKey = `${Math.round(layout.width)}x${layout.height}`;
+  if (root.attr("data-size") !== sizeKey) {
+    root.attr("viewBox", `0 0 ${layout.width} ${layout.height}`).attr("data-size", sizeKey);
+    root.selectAll("*").remove();
+    drawGdpAxes(root, layout);
+  }
+  const items = gdpItemsAt(gdpState.t ?? gdpState.year);
+  const mean = d3.mean(items, (d) => d.happiness);
+  root.select("line.gdp-mean")
+    .attr("y1", mean == null ? layout.y(5.5) : layout.y(mean))
+    .attr("y2", mean == null ? layout.y(5.5) : layout.y(mean))
+    .attr("opacity", mean == null ? 0 : 1);
+  root.select("g.gdp-dots").selectAll("circle").data(items, (d) => d.iso)
+    .join(
+      (enter) => enter.append("circle")
+        .attr("cx", (d) => layout.x(d.gdp))
+        .attr("cy", (d) => layout.y(d.happiness))
+        .attr("r", 0)
+        .attr("fill", (d) => layout.color(d.happiness))
+        .attr("fill-opacity", 0.82)
+        .attr("stroke", (d) => (state.selected.has(d.iso) || state.hover === d.iso ? "#17211d" : "rgba(23,33,29,.28)"))
+        .attr("stroke-width", (d) => (state.selected.has(d.iso) || state.hover === d.iso ? 2.6 : 0.7))
+        .style("cursor", "pointer")
+        .call((sel) => sel.transition().duration(280).attr("r", (d) => layout.radius(d.population))),
+      (update) => update,
+      (exit) => exit.transition().duration(220).attr("r", 0).remove()
+    )
+    .attr("cx", (d) => layout.x(d.gdp))
+    .attr("cy", (d) => layout.y(d.happiness))
+    .attr("r", (d) => layout.radius(d.population))
+    .attr("fill", (d) => layout.color(d.happiness))
+    .attr("stroke", (d) => (state.selected.has(d.iso) || state.hover === d.iso ? "#17211d" : "rgba(23,33,29,.28)"))
+    .attr("stroke-width", (d) => (state.selected.has(d.iso) || state.hover === d.iso ? 2.6 : 0.7))
+    .style("cursor", "pointer")
+    .on("mousemove", (event, d) => {
+      state.hover = d.iso;
+      showTooltip(event, d, mean);
+      highlight(d.iso);
+    })
+    .on("mouseleave", () => {
+      state.hover = null;
+      hideTooltip();
+      highlight(null);
+    })
+    .on("click", (_, d) => toggleSelect(d.iso));
+}
+
+function drawGdpScatter() {
+  updateGdpScatter();
+}
+
+function syncGdpYearReadout(year) {
+  d3.select("#gdp-year-slider").property("value", year);
+  d3.select("#gdp-year-readout").text(year);
+}
+
+function stopGdpTween() {
+  if (gdpState.tween) gdpState.tween.stop();
+  gdpState.tween = null;
+}
+
+function setGdpYear(year, options) {
+  year = +year;
+  if (YEARS_WITH_GAP.includes(year)) year = 2014;
+  const animate = !options || options.animate !== false;
+  const from = gdpState.t == null ? gdpState.year : gdpState.t;
+  gdpState.year = year;
+  syncGdpYearReadout(year);
+  stopGdpTween();
+  if (!animate || Math.abs(from - year) < 0.02) {
+    gdpState.t = year;
+    updateGdpScatter();
+    return;
+  }
+  const duration = Math.min(900, 260 + Math.abs(year - from) * 160);
+  const started = performance.now();
+  gdpState.tween = d3.timer(() => {
+    const u = Math.min(1, (performance.now() - started) / duration);
+    gdpState.t = from + (year - from) * d3.easeCubicInOut(u);
+    updateGdpScatter();
+    if (u >= 1) {
+      stopGdpTween();
+      gdpState.t = year;
+      updateGdpScatter();
+    }
+  });
+}
+
+function startGdpTimer() {
+  if (gdpState.timer) return;
+  stopGdpTween();
+  gdpState.t = gdpState.t == null ? gdpState.year : gdpState.t;
+  let last = performance.now();
+  const first = state.years[0];
+  const finalYear = state.years[state.years.length - 1];
+  gdpState.timer = d3.timer(() => {
+    const now = performance.now();
+    const step = (now - last) / GDP_YEAR_MS;
+    last = now;
+    gdpState.t += step;
+    if (gdpState.t > finalYear) gdpState.t = first;
+    gdpState.year = displayGdpYear(gdpState.t);
+    syncGdpYearReadout(gdpState.year);
+    updateGdpScatter();
+  });
+}
+
+function stopGdpTimer() {
+  if (gdpState.timer) gdpState.timer.stop();
+  gdpState.timer = null;
+  stopGdpTween();
+}
+
+function resetGdpView() {
+  stopGdpTimer();
+  const year = state.years.includes(DEFAULT_YEAR) ? DEFAULT_YEAR : state.years[state.years.length - 1];
+  setGdpYear(year, { animate: true });
+}
+
 function highlight(iso) {
-  d3.selectAll("#dorling-map circle, #change-chart circle")
+  d3.selectAll("#dorling-map circle, #change-chart circle, #rank-chart rect")
     .attr("stroke-width", function width(d) {
       if (!d) return null;
       return d.iso === iso || state.selected.has(d.iso) || state.selectedContinents.has(d.continent) ? 2 : 0.7;
     });
+  d3.selectAll("#gdp-chart circle")
+    .attr("stroke", (d) => (d && (d.iso === iso || state.selected.has(d.iso)) ? "#17211d" : "rgba(23,33,29,.28)"))
+    .attr("stroke-width", (d) => (d && (d.iso === iso || state.selected.has(d.iso)) ? 2.6 : 0.7));
   d3.selectAll("#entity-list .entity-row").classed("is-hover", (d) => d && d.iso === iso);
 }
 
-function renderAll() {
+function renderMap() {
   const allYear = enrich(visibleRows());
   const rows = activeRows();
   const mean = d3.mean(allYear, (d) => d.happiness);
@@ -599,26 +1210,33 @@ function renderAll() {
   drawSizeLegend(radius);
   drawDorling(rows, color, radius, mean);
   drawEntityList(allYear, color, mean);
-  drawChange(rows, color, radius, mean);
-  drawTrajectories(mean);
   setStatus(`${state.year} · ${rows.length} countries`);
 }
 
-function nextYear() {
-  const index = state.years.indexOf(state.year);
-  state.year = state.years[(index + 1) % state.years.length];
-  d3.select("#year-slider").property("value", state.year);
-  renderAll();
+function renderNotes() {
+  const live = liveRows();
+  const liveActive = live.filter((row) => isIncomeOn(row.income_group));
+  const liveMean = d3.mean(live, (d) => d.happiness);
+  const liveColor = colorScale(live);
+  const liveRadius = radiusScale(live);
+  drawRank(live, liveColor, liveMean);
+  drawChange(liveActive, liveColor, liveRadius, liveMean);
+  drawTrajectories(liveMean);
+}
+
+function renderAll(options) {
+  const notesOnly = options && options.notesOnly;
+  const mapOnly = options && options.mapOnly;
+  const skipGdp = options && options.skipGdp;
+  if (!notesOnly) renderMap();
+  if (!mapOnly) renderNotes();
+  if (!notesOnly && !mapOnly && !skipGdp) updateGdpScatter();
 }
 
 function bindControls() {
-  d3.select("#year-slider").on("input", function onYear() {
-    state.year = +this.value;
-    if (YEARS_WITH_GAP.includes(state.year)) {
-      state.year = 2014;
-      this.value = 2014;
-    }
-    renderAll();
+  d3.selectAll("#year-slider, .note-year-slider").on("input", function onYear() {
+    stopTimer();
+    setYear(this.value);
   });
   d3.select("#entity-search").on("input", function onSearch() {
     state.search = this.value;
@@ -633,17 +1251,34 @@ function bindControls() {
     renderAll();
   });
   d3.select("#reset-view").on("click", resetView);
-  d3.select("#toggle-list").on("click", () => {
+  const toggleList = () => {
     const panel = document.getElementById("entity-panel");
     setListOpen(panel.hidden);
-  });
+  };
+  d3.select("#toggle-list").on("click", toggleList);
   d3.select("#hide-list").on("click", () => setListOpen(false));
+  d3.select("#rank-buoy").on("click", () => setFloatOpen("rank-panel", true));
+  d3.select("#change-buoy").on("click", () => setFloatOpen("change-panel", true));
+  d3.select("#traj-buoy").on("click", () => setFloatOpen("traj-panel", true));
+  d3.select("#close-rank").on("click", () => setFloatOpen("rank-panel", false));
+  d3.select("#close-change").on("click", () => setFloatOpen("change-panel", false));
+  d3.select("#close-traj").on("click", () => setFloatOpen("traj-panel", false));
+  FLOAT_PANELS.forEach(bindFloatDrag);
   d3.select("#clear-selection").on("click", clearSelection);
-  d3.select("#year-play").on("click", () => {
-    if (state.timer) return;
-    state.timer = d3.interval(nextYear, 900);
-  });
+  d3.select("#year-play").on("click", startTimer);
   d3.select("#year-pause").on("click", stopTimer);
+  d3.selectAll(".change-year-toggle").on("click", (event) => {
+    event.stopPropagation();
+    toggleTimer();
+  });
+  d3.select("#gdp-year-slider").on("input", function onGdpYear() {
+    stopGdpTimer();
+    setGdpYear(this.value);
+  });
+  d3.select("#gdp-play").on("click", startGdpTimer);
+  d3.select("#gdp-pause").on("click", stopGdpTimer);
+  d3.select("#gdp-reset").on("click", resetGdpView);
+  syncPlayUi();
 }
 
 function parseRows(raw) {
@@ -653,6 +1288,7 @@ function parseRows(raw) {
     year: +row.year,
     happiness: +row.happiness,
     population: +row.population,
+    gdp: row.gdp === "" || row.gdp == null ? null : +row.gdp,
     income_group: row.income_group,
     continent: row.continent,
     lon: +row.lon,
@@ -670,13 +1306,23 @@ Promise.all([
   state.byIso.forEach((series) => series.sort((a, b) => a.year - b.year));
   state.land = topojson.feature(world, world.objects.land);
   state.year = state.years.includes(DEFAULT_YEAR) ? DEFAULT_YEAR : state.years[state.years.length - 1];
+  state.t = state.year;
   bindControls();
-  d3.select("#year-slider")
+  d3.selectAll("#year-slider, .note-year-slider, #gdp-year-slider")
     .attr("min", state.years[0])
-    .attr("max", state.years[state.years.length - 1])
-    .property("value", state.year);
+    .attr("max", state.years[state.years.length - 1]);
+  d3.selectAll("#year-slider, .note-year-slider").property("value", state.year);
+  d3.selectAll(".note-year-readout").text(state.year);
+  gdpState.year = state.years.includes(DEFAULT_YEAR) ? DEFAULT_YEAR : state.years[state.years.length - 1];
+  gdpState.t = gdpState.year;
+  d3.select("#gdp-year-slider").property("value", gdpState.year);
+  d3.select("#gdp-year-readout").text(gdpState.year);
   renderAll();
-  window.addEventListener("resize", () => renderAll());
+  drawGdpScatter();
+  window.addEventListener("resize", () => {
+    renderAll();
+    drawGdpScatter();
+  });
 }).catch((error) => {
   setStatus("Could not load data");
   d3.select("#dorling-map").html(`<p class="chart-error">${error.message}</p>`);
