@@ -28,7 +28,7 @@
       <div class="chart-heading">
         <div>
           <h2 id="original-title">1. Original Visualization</h2>
-          <p>Interactive choropleth map published by Our World in Data. The critique is about this map and its built-in interactions, not the extra charts listed under “Explore charts that include this data.”</p>
+          <p>Interactive choropleth map published by Our World in Data. The critique is about this map and its built-in interactions, not the extra charts listed under “Explore charts that include this data.” For the redesign I chose to make a complex single visualization: one coordinated view instead of a set of separate charts.</p>
         </div>
         <span class="chart-key">Source map · 2020</span>
       </div>
@@ -84,7 +84,7 @@
       <div class="chart-heading">
         <div>
           <h2 id="redesign-title">4. Redesign</h2>
-          <p>Dorling-style map, linked ranking, and a change view. Color is happiness versus the year’s global average. Area is population.</p>
+          <p>Dorling-style map with a linked country list. Color is happiness versus the year’s global average. Area is population. Change views stay under the map.</p>
         </div>
         <span id="project-status" class="chart-key">Loading</span>
       </div>
@@ -92,21 +92,19 @@
       <div class="lab-controls" aria-label="Redesign controls">
         <button id="year-play" type="button">Play</button>
         <button id="year-pause" type="button">Pause</button>
+        <button id="reset-view" type="button">Reset</button>
         <label class="control-field control-field-wide" for="year-slider">
-          <span class="control-label">Year</span>
+          <span class="control-label">Year <span id="year-readout">2025</span></span>
           <input type="range" id="year-slider" min="2011" max="2025" step="1" value="2025">
         </label>
-        <label class="control-field" for="income-filter">
-          <span class="control-label">Income group</span>
-          <select id="income-filter">
-            <option value="All">All groups</option>
-            <option value="High">High</option>
-            <option value="Upper middle">Upper middle</option>
-            <option value="Lower middle">Lower middle</option>
-            <option value="Low">Low</option>
-          </select>
-        </label>
-        <button id="clear-selection" type="button">Clear selection</button>
+      </div>
+
+      <div class="income-panel" aria-label="Income group filter">
+        <div>
+          <p class="control-label">Income group · multi-select</p>
+          <p class="income-note">World Bank average-income classification. The number on each group is that group’s mean life satisfaction this year.</p>
+        </div>
+        <div class="income-pills" id="income-pills"></div>
       </div>
 
       <dl class="network-summary" id="project-summary" aria-live="polite">
@@ -114,49 +112,79 @@
         <div><dt>Countries shown</dt><dd id="summary-count">—</dd></div>
         <div><dt>Global average</dt><dd id="summary-mean">—</dd></div>
         <div><dt>Selected</dt><dd id="summary-selected">None</dd></div>
-        <div><dt>Income filter</dt><dd id="summary-income">All</dd></div>
+        <div><dt>Income groups</dt><dd id="summary-income">All</dd></div>
       </dl>
 
-      <div class="project-legends" aria-label="Encoding legends">
-        <div>
-          <p class="control-label">Happiness vs. yearly average</p>
-          <div class="color-legend" id="color-legend"></div>
-          <div class="legend-ends"><span>Below</span><span>Average</span><span>Above</span></div>
-        </div>
-        <div>
-          <p class="control-label">Circle area = population</p>
-          <div class="size-legend" id="size-legend"></div>
+      <div class="redesign-workbench">
+        <div class="redesign-main">
+          <div class="project-legends" aria-label="Encoding legends">
+            <div>
+              <p class="control-label">Happiness vs. yearly average</p>
+              <div class="color-legend" id="color-legend"></div>
+              <div class="legend-ends"><span>Below average</span><span>Average</span><span>Above average</span></div>
+            </div>
+            <div>
+              <p class="control-label">Circle area = population</p>
+              <div class="size-legend" id="size-legend"></div>
+            </div>
+          </div>
+          <div class="map-stage">
+            <div id="dorling-map" role="img" aria-label="Dorling-style map of life satisfaction"></div>
+            <button id="toggle-list" class="list-tab" type="button" aria-expanded="false" aria-controls="entity-panel">Show list</button>
+            <aside class="entity-panel" id="entity-panel" hidden aria-label="Country and continent list">
+              <div class="entity-panel-head">
+                <p class="control-label">Select countries or continents</p>
+                <button id="hide-list" type="button">Hide</button>
+              </div>
+              <label class="control-field" for="entity-search">
+                <span class="control-label">Search</span>
+                <input id="entity-search" type="search" placeholder="Search the list…">
+              </label>
+              <div class="entity-tools">
+                <label class="control-field" for="entity-sort">
+                  <span class="control-label">Sort</span>
+                  <select id="entity-sort">
+                    <option value="score-desc">Score · high to low</option>
+                    <option value="score-asc">Score · low to high</option>
+                    <option value="name">Name · A to Z</option>
+                  </select>
+                </label>
+                <label class="control-field" for="entity-type">
+                  <span class="control-label">Filter by type</span>
+                  <select id="entity-type">
+                    <option value="countries">Countries</option>
+                    <option value="continents">Continents</option>
+                  </select>
+                </label>
+              </div>
+              <p class="entity-hint">Click a row or a map circle. The two stay in sync.</p>
+              <button id="clear-selection" type="button">Cancel selection</button>
+              <div id="entity-list"></div>
+            </aside>
+          </div>
+          <div class="redesign-views">
+            <div>
+              <h3 class="findings-block">Current score and change</h3>
+              <div id="change-chart" role="img" aria-label="Scatterplot of happiness versus change over time"></div>
+            </div>
+            <div>
+              <h3 class="findings-block">Trajectories</h3>
+              <div id="trajectory-chart" role="img" aria-label="Happiness trajectories for selected countries"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="dorling-map" role="img" aria-label="Dorling-style map of life satisfaction"></div>
-      <p class="map-note">Each circle is a country, placed near its geographic position and nudged apart so they do not overlap. Click up to eight countries to compare them in the ranking and trajectory views.</p>
-
-      <div class="project-stage">
-        <div>
-          <h3 class="findings-block">Linked ranking</h3>
-          <p>Selected countries on the same 0–10 scale. If none are selected, the five highest and five lowest scores for this year are shown.</p>
-          <div id="rank-chart" role="img" aria-label="Linked ranking of life satisfaction scores"></div>
-        </div>
-        <div>
-          <h3 class="findings-block">Current score and change</h3>
-          <p>Horizontal position is this year’s score. Vertical position is change since that country’s first year in the data, usually 2011.</p>
-          <div id="change-chart" role="img" aria-label="Scatterplot of happiness versus change over time"></div>
-        </div>
-      </div>
-
-      <h3 class="findings-block">Trajectories of selected countries</h3>
-      <p>How the selected countries moved across the Cantril Ladder from 2011 to 2025. Click countries on the map to add them here.</p>
-      <div id="trajectory-chart" role="img" aria-label="Happiness trajectories for selected countries"></div>
+      <p class="map-note">Each circle is a country, placed near its geographic position and nudged apart so they do not overlap. Use <em>Show list</em> to open a hideable ranking bar with search, sort, and country or continent selection. The map stays full width when the list is closed.</p>
 
       <div class="encoding-guide" aria-label="Redesign encoding guide">
         <h3>Visual Encoding Guide</h3>
         <p><strong>Geographic position</strong>: approximate country location, then collision so circles do not sit on top of each other.</p>
         <p><strong>Life satisfaction</strong>: blue–neutral–red diverging color. Blue is below that year’s global average, red is above it.</p>
         <p><strong>Population</strong>: circle area on the map and on the change scatter.</p>
-        <p><strong>Income group</strong>: filter. Other countries fade but stay in place.</p>
-        <p><strong>Exact values</strong>: hover for score, rank, population, income, and change.</p>
-        <p><strong>Change over time</strong>: scatter of current score versus change, plus trajectories for selected countries.</p>
+        <p><strong>Income group</strong>: World Bank average-income groups, multi-select. Unchecked groups fade on the map.</p>
+        <p><strong>Exact values</strong>: hover a circle or a list row for score, rank, population, income, and change.</p>
+        <p><strong>Change over time</strong>: the scatter and trajectories sit under the map so they stay in view with the selection.</p>
       </div>
     </section>
 

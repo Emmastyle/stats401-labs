@@ -71,6 +71,16 @@ def main():
     }
     centroid_lookup.update(EXTRA_CENTROIDS)
 
+    def continent_of(code):
+        match = iso.loc[iso["alpha-3"] == code]
+        if match.empty:
+            return "Other"
+        region = match.iloc[0]["region"]
+        intermediate = match.iloc[0]["intermediate-region"]
+        if region == "Americas":
+            return "South America" if intermediate == "South America" else "North America"
+        return region if pd.notna(region) and region else "Other"
+
     rows = []
     missing_geo = set()
     for row in happiness.itertuples():
@@ -89,6 +99,7 @@ def main():
                 "happiness": round(float(row.happiness), 3),
                 "population": None if pd.isna(pop) else int(pop),
                 "income_group": INCOME_SHORT.get(income_name, income_name),
+                "continent": continent_of(row.Code),
                 "lon": round(float(lon), 4),
                 "lat": round(float(lat), 4),
             }
