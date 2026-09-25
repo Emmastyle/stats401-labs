@@ -76,7 +76,7 @@ function horizontalBars(selector, rows, labelOf, valueOf, format = d3.format(","
         .text(d => format(valueOf(d)));
 }
 
-function drawOverview(passages, tfidf, terms) {
+function drawOverview(passages, terms) {
     horizontalBars(
         "#top-terms-chart",
         terms,
@@ -99,15 +99,6 @@ function drawOverview(passages, tfidf, terms) {
         d => d.avg,
         d3.format(".0f")
     );
-
-    horizontalBars(
-        "#tfidf-chart",
-        tfidf,
-        d => d.term,
-        d => d.mean_tfidf
-    );
-    d3.select("#tfidf-chart").selectAll(".bar-score")
-        .text(d => d.mean_tfidf.toFixed(3));
 }
 
 Promise.all([
@@ -124,16 +115,12 @@ Promise.all([
         count: +d.count,
         proportion: +d.proportion
     })),
-    d3.csv("../data/lab8_top_tfidf.csv", d => ({
-        ...d,
-        mean_tfidf: +d.mean_tfidf
-    })),
     d3.csv("../data/lab8_top_terms.csv", d => ({
         ...d,
         count: +d.count
     }))
-]).then(([passages, matrixRows, tfidf, terms]) => {
-    drawOverview(passages, tfidf, terms);
+]).then(([passages, matrixRows, terms]) => {
+    drawOverview(passages, terms);
     drawExplorer(passages, matrixRows);
 }).catch(error => {
     d3.select("#semantic-map")

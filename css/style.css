@@ -49,7 +49,30 @@ h1 em { color: var(--orange); font-weight: 400; }
 .primary-link { display: inline-flex; gap: 26px; align-items: center; padding: 13px 18px; background: var(--ink); color: var(--paper); text-decoration: none; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; transition: background .2s, transform .2s; }
 .primary-link:hover { background: var(--orange); transform: translateY(-2px); }
 
-.labs-section { padding: 78px 0 100px; border-top: 1px solid var(--line); }
+.labs-section { padding: 78px 0 72px; border-top: 1px solid var(--line); }
+.project-section { padding: 0 0 100px; }
+.project-canvas {
+  min-height: 260px;
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  transition: background .2s, color .2s;
+}
+.project-canvas:hover { background: var(--ink); color: var(--paper); }
+.project-kicker { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.project-canvas strong {
+  max-width: 14em;
+  font: clamp(36px, 4.6vw, 58px)/1.02 "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+}
+.project-canvas .card-arrow { color: inherit; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 42px; }
 .section-heading .eyebrow { margin-bottom: 8px; }
 .section-heading h2 { font-size: clamp(44px, 6vw, 72px); margin: 0; line-height: 1; }
@@ -351,12 +374,12 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   font-size: 15px;
   font-weight: 600;
 }
-#semantic-map, #topic-matrix, #top-terms-chart, #length-by-section, #tfidf-chart {
+#semantic-map, #topic-matrix, #top-terms-chart, #length-by-section {
   width: 100%;
   overflow: auto;
 }
 #semantic-map { overflow: hidden; }
-#semantic-map svg, #topic-matrix svg, #top-terms-chart svg, #length-by-section svg, #tfidf-chart svg {
+#semantic-map svg, #topic-matrix svg, #top-terms-chart svg, #length-by-section svg {
   display: block;
   width: 100%;
   height: auto;
@@ -364,13 +387,81 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .passage { cursor: pointer; }
 .matrix-cell { cursor: pointer; }
 
+.owid-frame {
+  margin: 20px 0 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.owid-frame iframe {
+  display: block;
+  width: 100%;
+  height: 620px;
+  border: 0;
+}
+.source-line,
+.source-list {
+  margin: 12px 0 0;
+  color: #33413b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.source-list { padding-left: 18px; }
+.source-list li { margin: 6px 0; }
+.source-line a,
+.source-list a { text-decoration-color: var(--orange); text-underline-offset: 3px; }
+.project-legends {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin: 8px 0 12px;
+}
+.color-legend { width: 100%; height: 14px; }
+.color-legend svg,
+.size-legend svg { display: block; width: 100%; height: auto; }
+.legend-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  color: #65706b;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+#dorling-map,
+#rank-chart,
+#change-chart,
+#trajectory-chart {
+  width: 100%;
+  overflow: hidden;
+}
+#dorling-map { min-height: 420px; }
+#dorling-map svg,
+#rank-chart svg,
+#change-chart svg,
+#trajectory-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.country-dot { cursor: pointer; }
+.project-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 8px;
+}
+#project-tooltip { z-index: 20; }
+
 @media (max-width: 820px) {
   .hero { min-height: 520px; padding-top: 78px; }
   .hero::after { opacity: .35; }
   .lab-grid { grid-template-columns: repeat(2, 1fr); }
   .lab-intro { grid-template-columns: 1fr; }
-  .lab8-stage { grid-template-columns: 1fr; }
+  .lab8-stage,
+  .project-stage,
+  .project-legends { grid-template-columns: 1fr; }
   .detail-panel { max-height: 480px; }
+  .owid-frame iframe { height: 480px; }
 }
 
 @media (max-width: 540px) {
