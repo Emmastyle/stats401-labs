@@ -640,6 +640,80 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .source-list li { margin: 6px 0; }
 .source-line a,
 .source-list a { text-decoration-color: var(--orange); text-underline-offset: 3px; }
+.report-cta {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 28px;
+}
+.report-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 22px;
+  background: var(--orange);
+  color: #fff8ee;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  transition: background .2s, transform .2s;
+}
+.report-link:hover {
+  background: var(--ink);
+  transform: translateY(-2px);
+}
+.report-page .lab-intro p { max-width: 720px; }
+.report-prose {
+  max-width: 760px;
+}
+.report-prose h2 {
+  margin: 36px 0 12px;
+  font-size: 28px;
+}
+.report-prose p,
+.report-prose li {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.report-prose ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+.report-figure {
+  margin: 22px 0 28px;
+}
+.report-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.report-figure figcaption {
+  margin-top: 8px;
+  color: #33413b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.report-notes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+.report-notes-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.report-refs {
+  padding-left: 20px;
+}
+.report-refs li { margin: 8px 0; }
 .lab-main:has(+ .project-sources) { padding-bottom: 36px; }
 .project-sources {
   width: 100%;
