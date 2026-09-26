@@ -663,9 +663,13 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   background: var(--ink);
   transform: translateY(-2px);
 }
-.report-page .lab-intro p { max-width: 720px; }
+.report-page .site-header,
+.report-page .lab-main {
+  width: min(1360px, calc(100% - 40px));
+}
+.report-page .lab-intro p { max-width: 880px; }
 .report-prose {
-  max-width: 760px;
+  max-width: none;
 }
 .report-prose h2 {
   margin: 36px 0 12px;
@@ -674,6 +678,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .report-prose p,
 .report-prose li {
   margin: 0 0 14px;
+  max-width: none;
   font-size: 16px;
   line-height: 1.7;
 }
@@ -691,11 +696,21 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   border: 1px solid var(--line);
   background: #fff;
 }
+.report-figure:not(.report-notes-row) img {
+  width: 82%;
+  max-width: 980px;
+  margin-inline: auto;
+}
 .report-figure figcaption {
   margin-top: 8px;
   color: #33413b;
   font-size: 13px;
   line-height: 1.5;
+}
+.report-figure:not(.report-notes-row) figcaption {
+  width: 82%;
+  max-width: 980px;
+  margin-inline: auto;
 }
 .report-notes-grid {
   display: grid;
