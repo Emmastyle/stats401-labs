@@ -360,7 +360,7 @@ function drawExplorer(passages, matrixRows) {
 
     const rowHeight = 18;
     const colWidth = 58;
-    const matrixMargin = { top: 168, right: 16, bottom: 16, left: 292 };
+    const matrixMargin = { top: 168, right: 150, bottom: 16, left: 292 };
     const matrixWidth = matrixMargin.left + topics.length * colWidth + matrixMargin.right;
     const matrixHeight = matrixMargin.top + sections.length * rowHeight + matrixMargin.bottom;
     const matrixSvg = d3.select("#topic-matrix").append("svg")
