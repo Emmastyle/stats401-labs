@@ -111,7 +111,9 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 #assignment-chart,
 #matrix,
 #gdp-squarify,
-#gdp-slicedice { width: 100%; min-height: 440px; overflow-x: auto; }
+#gdp-slicedice,
+#choropleth,
+#cartogram { width: 100%; min-height: 440px; overflow-x: auto; }
 #chart svg,
 #assignment-chart svg,
 #matrix svg,
@@ -377,6 +379,66 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
   cursor: pointer;
 }
 .map-note, .findings-block p { margin: 10px 0 0; }
+#choropleth,
+#cartogram {
+  min-height: 520px;
+  margin-top: 12px;
+  background: #eef3f2;
+  border: 1px solid var(--line);
+}
+#choropleth svg,
+#cartogram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+#choropleth .ocean,
+#cartogram .ocean {
+  fill: #d9e4e2;
+  pointer-events: all;
+}
+#choropleth .country,
+#cartogram .country {
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+}
+#choropleth .country.is-active,
+#cartogram .country.is-active {
+  stroke: #111111;
+  stroke-width: 2;
+}
+.map-title {
+  fill: #17211d;
+  font: 600 15px/1 "DM Sans", Arial, sans-serif;
+}
+.cartogram-label {
+  fill: #17211d;
+  font: 600 11px/1 "DM Sans", Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(244, 241, 233, 0.85);
+  stroke-width: 3px;
+}
+.lab9-legend {
+  margin-top: 10px;
+}
+.lab9-legend svg {
+  display: block;
+  width: min(420px, 100%);
+  height: auto;
+  overflow: visible;
+}
+.lab9-legend .tick text {
+  fill: #33413b;
+  font-size: 11px;
+}
+.lab9-active {
+  margin: 0;
+  color: #33413b;
+  font-size: 13px;
+  max-width: 420px;
+}
 .findings-block h3 {
   margin: 18px 0 6px;
   font-family: "DM Sans", Arial, sans-serif;

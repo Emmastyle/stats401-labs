@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 9 · STATS 401</title>
+  <meta name="description" content="Coordinated 2025 GDP choropleth and cartogram for STATS 401 Lab 9.">
+  <title>Lab 9 · Geospatial Visualization</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,108 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 09 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 09</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 09 · Geospatial Visualization</p>
+        <h1>GDP,<br><em>on the map.</em></h1>
+      </div>
+      <p>Two coordinated views of 2025 nominal GDP. Color keeps geography. Area shows economic size. Hover or click a country to see it in both maps.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">1. Dataset Description</h2>
+          <p>World country boundaries joined to the 50 largest economies by 2025 nominal GDP.</p>
+        </div>
+        <span id="join-status" class="chart-key">Loading data</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>GDP file</dt><dd>lab9_gdp_2025_top50.csv</dd></div>
+        <div><dt>Boundaries</dt><dd>world.geojson</dd></div>
+        <div><dt>Join key</dt><dd>ISO-3 identifier</dd></div>
+        <div><dt>GDP unit</dt><dd>Billions of U.S. dollars</dd></div>
+        <div><dt>Source</dt><dd>IMF WEO, NGDPD</dd></div>
+        <div><dt>Vintage</dt><dd>October 2025 series</dd></div>
+        <div><dt>Economies</dt><dd>Top 50 by 2025 GDP</dd></div>
+        <div><dt>Missing values</dt><dd>No data, not zero</dd></div>
+      </dl>
+      <p>The statistical file is the IMF World Economic Outlook nominal-GDP series (<code>NGDPD</code>, current prices) for 2025. It is limited to the 50 largest economies. Country polygons come from Natural Earth and are stored as GeoJSON with <code>iso3</code> and <code>name</code>. The two files are joined on the ISO-3 code. Economies outside this top-50 list stay on the choropleth as missing data. They are never colored or sized as if GDP were zero. The IMF notes that WEO observations may include staff estimates where complete official data are unavailable and can later be revised.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="choropleth-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="choropleth-title">2. 2025 GDP Choropleth</h2>
+          <p>Country shape is the real boundary. Color is 2025 nominal GDP.</p>
+        </div>
+        <span id="choropleth-key" class="chart-key">Log color scale</span>
+      </div>
+
+      <div class="lab-controls" aria-label="Map coordination controls">
+        <label class="control-field" for="country-select">
+          <span class="control-label">Find a country</span>
+          <select id="country-select">
+            <option value="">All countries</option>
+          </select>
+        </label>
+        <button id="reset-view" type="button">Reset view</button>
+        <p id="active-country" class="lab9-active">Hover or click a country to highlight it in both maps.</p>
+      </div>
+
+      <div id="choropleth" role="img" aria-label="Choropleth map of 2025 nominal GDP"></div>
+      <div id="choropleth-legend" class="lab9-legend" aria-label="Quantitative GDP color legend"></div>
+
+      <div class="encoding-guide" aria-label="Choropleth encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>Position</strong>: geographic location after a Natural Earth projection.</p>
+        <p><strong>Shape</strong>: actual country boundary from GeoJSON, drawn with <code>d3.geoPath()</code>.</p>
+        <p><strong>Color</strong>: 2025 GDP on a logarithmic sequential blue scale.</p>
+        <p><strong>Missing data</strong>: neutral gray. These countries are outside the top-50 file, not zero-GDP countries.</p>
+        <p><strong>Interaction</strong>: tooltip, highlight, and zoom/pan. The same country is also highlighted on the cartogram.</p>
+      </div>
+      <p class="map-note">GDP in this set runs from about $303 billion to more than $30 trillion. A linear color scale would isolate the United States and China and leave almost every other economy in the same pale bin. I used <code>d3.scaleSequentialLog</code> with <code>d3.interpolateBlues</code> so Germany, India, Brazil, and the smaller top-50 economies remain distinguishable. The log transform is a design choice for readability, not a claim that GDP itself is logarithmic.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="cartogram-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="cartogram-title">3. 2025 GDP Cartogram</h2>
+          <p>Country area represents 2025 GDP. Larger GDP occupies more visual area.</p>
+        </div>
+        <span class="chart-key">Area encodes GDP</span>
+      </div>
+
+      <div id="cartogram" role="img" aria-label="Noncontiguous cartogram of 2025 nominal GDP"></div>
+
+      <div class="encoding-guide" aria-label="Cartogram encoding guide">
+        <h3>Visual Encoding Guide</h3>
+        <p><strong>Area</strong>: 2025 GDP. This is the primary encoding. A country’s visual size is no longer its land area.</p>
+        <p><strong>Color</strong>: the same logarithmic GDP scale as the choropleth, so the two views stay comparable.</p>
+        <p><strong>Shape</strong>: the original country outline, scaled around its centroid. This is a noncontiguous cartogram: geography is distorted through size, not by stretching shared borders into a continuous rubber sheet.</p>
+        <p><strong>Position</strong>: near the geographic centroid, with a light collision force so scaled countries do not fully cover one another.</p>
+        <p><strong>Missing data</strong>: countries outside the top 50 are omitted here. They are not drawn as zero-area shapes.</p>
+        <p><strong>Interaction</strong>: tooltip and linked highlighting with the choropleth.</p>
+      </div>
+      <p class="map-note">Read area first. The United States and China should dominate the page. Compact high-output economies grow; land-rich, mid-sized economies shrink. Hover a shape if the distortion makes the country hard to recognize; the choropleth will mark the same ISO-3 feature.</p>
+    </section>
+
+    <section class="chart-shell lab-note findings-block" aria-labelledby="comparison-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="comparison-title">4. Design and Comparison</h2>
+          <p>Task, encoding, geographic information, and the trade-off between the two maps.</p>
+        </div>
+      </div>
+      <p id="comparison-copy">The choropleth keeps real coastlines, so Russia, Canada, China, Brazil, and Australia look large before color is read. Color then marks the United States and China as the two darkest economies; Germany, Japan, the United Kingdom, and India form the next visible tier. Much of Africa, Central Asia, and the smaller states stay the missing-data gray, which is not zero. The cartogram reverses that land hierarchy. The United States and China occupy most of the visual area. Compact high-output economies—Germany, Japan, the United Kingdom, South Korea, and the Low Countries—grow, while Russia, Canada, and Australia shrink toward their economic weight. Singapore and Hong Kong, almost invisible on the geographic map, become readable shapes. The choropleth therefore preserves location, contiguity, and neighborhood, and it is the better tool for asking where high GDP clusters and which neighbors share a region. The cartogram distorts area and, after overlap is resolved, also loosens exact position and shared borders, so it is weaker for geography and stronger for magnitude: which economies are largest, and by how much. Replacing color with area makes the U.S.–China gap hard to miss. A log color scale keeps mid-sized countries distinguishable, but it also compresses that gap; area does not. The two maps answer different tasks rather than competing as a single better world map.</p>
+    </section>
   </main>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab9.js"></script>
 </body>
 </html>
