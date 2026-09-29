@@ -84,21 +84,21 @@
           <h2 id="cartogram-title">3. 2025 GDP Cartogram</h2>
           <p>Country area represents 2025 GDP. Larger GDP occupies more visual area.</p>
         </div>
-        <span class="chart-key">Area encodes GDP</span>
+        <span id="cartogram-status" class="chart-key">Area encodes GDP</span>
       </div>
 
-      <div id="cartogram" role="img" aria-label="Noncontiguous cartogram of 2025 nominal GDP"></div>
+      <div id="cartogram" role="img" aria-label="Contiguous cartogram of 2025 nominal GDP"></div>
 
       <div class="encoding-guide" aria-label="Cartogram encoding guide">
         <h3>Visual Encoding Guide</h3>
         <p><strong>Area</strong>: 2025 GDP. This is the primary encoding. A country’s visual size is no longer its land area.</p>
         <p><strong>Color</strong>: the same logarithmic GDP scale as the choropleth, so the two views stay comparable.</p>
-        <p><strong>Shape</strong>: the original country outline, scaled around its centroid. This is a noncontiguous cartogram: geography is distorted through size, not by stretching shared borders into a continuous rubber sheet.</p>
-        <p><strong>Position</strong>: near the geographic centroid, with a light collision force so scaled countries do not fully cover one another.</p>
-        <p><strong>Missing data</strong>: countries outside the top 50 are omitted here. They are not drawn as zero-area shapes.</p>
+        <p><strong>Shape</strong>: a contiguous cartogram. Shared borders stay attached and the whole landmass is stretched like a rubber sheet until area matches GDP. This is the Worldmapper-style map, computed with the Dougenik–Chrisman–Niemeyer algorithm in <code>topogram</code>.</p>
+        <p><strong>Position</strong>: still a world map. Neighbors remain neighbors; continents do not float apart.</p>
+        <p><strong>Missing data</strong>: countries outside the top 50 stay on the map as gray connecting tissue so the topology does not tear. They receive only a small residual area for that purpose. They are not colored or sized as if GDP were zero.</p>
         <p><strong>Interaction</strong>: tooltip and linked highlighting with the choropleth.</p>
       </div>
-      <p class="map-note">Read area first. The United States and China should dominate the page. Compact high-output economies grow; land-rich, mid-sized economies shrink. Hover a shape if the distortion makes the country hard to recognize; the choropleth will mark the same ISO-3 feature.</p>
+      <p class="map-note">Read area first. The United States and China should swell in place. Western Europe should puff up. Russia, Canada, and Australia should thin out while remaining attached to their neighbors. Hover a warped shape if it is hard to recognize; the choropleth will mark the same ISO-3 feature.</p>
     </section>
 
     <section class="chart-shell lab-note findings-block" aria-labelledby="comparison-title">
@@ -108,12 +108,14 @@
           <p>Task, encoding, geographic information, and the trade-off between the two maps.</p>
         </div>
       </div>
-      <p id="comparison-copy">The choropleth keeps real coastlines, so Russia, Canada, China, Brazil, and Australia look large before color is read. Color then marks the United States and China as the two darkest economies; Germany, Japan, the United Kingdom, and India form the next visible tier. Much of Africa, Central Asia, and the smaller states stay the missing-data gray, which is not zero. The cartogram reverses that land hierarchy. The United States and China occupy most of the visual area. Compact high-output economies—Germany, Japan, the United Kingdom, South Korea, and the Low Countries—grow, while Russia, Canada, and Australia shrink toward their economic weight. Singapore and Hong Kong, almost invisible on the geographic map, become readable shapes. The choropleth therefore preserves location, contiguity, and neighborhood, and it is the better tool for asking where high GDP clusters and which neighbors share a region. The cartogram distorts area and, after overlap is resolved, also loosens exact position and shared borders, so it is weaker for geography and stronger for magnitude: which economies are largest, and by how much. Replacing color with area makes the U.S.–China gap hard to miss. A log color scale keeps mid-sized countries distinguishable, but it also compresses that gap; area does not. The two maps answer different tasks rather than competing as a single better world map.</p>
+      <p id="comparison-copy">The choropleth keeps real coastlines, so Russia, Canada, China, Brazil, and Australia look large before color is read. Color then marks the United States and China as the two darkest economies; Germany, Japan, the United Kingdom, and India form the next visible tier. Much of Africa and Central Asia stays the missing-data gray, which is not zero. The cartogram is a contiguous rubber-sheet map: neighbors still touch, but area now follows 2025 GDP. The United States and China swell in place; Western Europe puffs up; Russia, Canada, and Australia shrink into thinner shapes. Compact high-output economies such as Japan, South Korea, and the Low Countries gain area without leaving their region. Gray countries remain only as connecting tissue so the landmass stays one piece; they are not sized as zero GDP. The choropleth is the better tool for location, borders, and regional clusters. The cartogram is the better tool for magnitude: which economies are largest, and by how much. Switching from color to area makes the U.S.–China gap hard to miss. A log color scale keeps mid-sized countries readable but compresses that gap; area does not.</p>
     </section>
   </main>
 
   <div id="tooltip" class="tooltip"></div>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topogram@1.0.1/build/topogram.js"></script>
   <script src="lab9.js"></script>
 </body>
 </html>

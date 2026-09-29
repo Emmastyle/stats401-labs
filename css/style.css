@@ -111,9 +111,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 #assignment-chart,
 #matrix,
 #gdp-squarify,
-#gdp-slicedice,
-#choropleth,
-#cartogram { width: 100%; min-height: 440px; overflow-x: auto; }
+#gdp-slicedice { width: 100%; min-height: 440px; overflow-x: auto; }
 #chart svg,
 #assignment-chart svg,
 #matrix svg,
@@ -381,7 +379,7 @@ footer { min-height: 100px; display: flex; align-items: center; justify-content:
 .map-note, .findings-block p { margin: 10px 0 0; }
 #choropleth,
 #cartogram {
-  min-height: 520px;
+  min-height: 0;
   margin-top: 12px;
   background: #eef3f2;
   border: 1px solid var(--line);

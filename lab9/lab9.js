@@ -227,31 +227,77 @@ function drawChoropleth(geoData, colorScale) {
     return countries;
 }
 
-function largestPiece(feature) {
-    if (feature.geometry.type !== "MultiPolygon") {
-        return feature;
-    }
-    return feature.geometry.coordinates
-        .map(coordinates => ({
-            type: "Feature",
-            properties: feature.properties,
-            geometry: { type: "Polygon", coordinates }
-        }))
-        .sort((a, b) => d3.geoArea(b) - d3.geoArea(a))[0];
+function featureCoords(feature) {
+    const coords = [];
+    const walk = node => {
+        if (!node) return;
+        if (typeof node[0] === "number") {
+            coords.push(node);
+            return;
+        }
+        node.forEach(walk);
+    };
+    walk(feature.geometry && feature.geometry.coordinates);
+    return coords;
 }
 
-function drawCartogram(geoData, colorScale) {
-    const valued = geoData.features.filter(d => d.properties.value != null);
-    const pieces = valued.map(feature => ({
-        feature,
-        piece: largestPiece(feature)
-    }));
-    const projection = d3.geoNaturalEarth1()
-        .fitExtent([[48, 40], [mapWidth - 48, mapHeight - 36]], {
-            type: "FeatureCollection",
-            features: pieces.map(d => d.piece)
+function quantile(values, p) {
+    if (!values.length) return 0;
+    const i = Math.max(0, Math.min(values.length - 1, Math.floor(p * (values.length - 1))));
+    return values[i];
+}
+
+function fitProjectedCollection(features, path, width, height, pad) {
+    const xs = [];
+    const ys = [];
+    features.forEach(feature => {
+        featureCoords(feature).forEach(([x, y]) => {
+            if (Number.isFinite(x) && Number.isFinite(y)) {
+                xs.push(x);
+                ys.push(y);
+            }
         });
-    const path = d3.geoPath().projection(projection);
+    });
+    xs.sort((a, b) => a - b);
+    ys.sort((a, b) => a - b);
+
+    const x0 = quantile(xs, 0.02);
+    const x1 = quantile(xs, 0.98);
+    const y0 = quantile(ys, 0.045);
+    const y1 = quantile(ys, 0.96);
+    const boxWidth = Math.max(x1 - x0, 1);
+    const boxHeight = Math.max(y1 - y0, 1);
+    const scale = Math.min((width - pad * 2) / boxWidth, (height - pad * 2) / boxHeight);
+    const tx = width / 2 - scale * (x0 + x1) / 2;
+    const ty = height / 2 - scale * (y0 + y1) / 2;
+    return `translate(${tx},${ty}) scale(${scale})`;
+}
+
+function cartogramValue(feature, floor) {
+    return feature.properties.value == null ? floor : feature.properties.value;
+}
+
+function drawCartogram(geoData, colorScale, stats) {
+    const status = d3.select("#cartogram-status");
+    status.text("Warping the map");
+
+    const land = {
+        type: "FeatureCollection",
+        features: geoData.features.filter(d => d.properties.iso3 !== "ATA")
+    };
+    const topology = topojson.topology({ countries: land }, 1e4);
+    const projection = d3.geoNaturalEarth1()
+        .fitExtent([[24, 18], [mapWidth - 24, mapHeight - 18]], land);
+    const floor = d3.min(stats, d => d.value) * 0.05;
+
+    const carto = topogram.cartogram()
+        .projection(projection)
+        .iterations(36)
+        .properties(geom => geom.properties)
+        .value(feature => cartogramValue(feature, floor));
+
+    const warped = carto(topology, topology.objects.countries.geometries);
+    const path = carto.path;
 
     const svg = d3.select("#cartogram")
         .append("svg")
@@ -269,71 +315,27 @@ function drawCartogram(geoData, colorScale) {
         .attr("class", "ocean")
         .attr("width", mapWidth)
         .attr("height", mapHeight);
+    frame.append("clipPath")
+        .attr("id", "cartogram-clip")
+        .append("rect")
+        .attr("width", mapWidth)
+        .attr("height", mapHeight);
 
-    const available = mapWidth * mapHeight * 0.30;
-    const sumGdp = d3.sum(valued, d => d.properties.value);
-    const targetArea = d => Math.max(80, available * (d.properties.value / sumGdp));
+    const clipped = frame.append("g").attr("clip-path", "url(#cartogram-clip)");
+    const mapGroup = clipped.append("g")
+        .attr("class", "map-layer")
+        .attr("transform", fitProjectedCollection(warped.features, path, mapWidth, mapHeight, 6));
 
-    const nodes = pieces.map(({ feature, piece }) => {
-        const centroid = path.centroid(piece);
-        const geoArea = Math.max(path.area(piece), 1);
-        const area = targetArea(feature);
-        const k = Math.sqrt(area / geoArea);
-        const bounds = path.bounds(piece);
-        const halfW = ((bounds[1][0] - bounds[0][0]) * k) / 2;
-        const halfH = ((bounds[1][1] - bounds[0][1]) * k) / 2;
-        return {
-            feature,
-            piece,
-            properties: feature.properties,
-            cx: centroid[0],
-            cy: centroid[1],
-            x: centroid[0],
-            y: centroid[1],
-            k,
-            r: Math.max(Math.hypot(halfW, halfH) * 0.72, Math.sqrt(area / Math.PI))
-        };
-    });
-
-    const simulation = d3.forceSimulation(nodes)
-        .force("x", d3.forceX(d => d.cx).strength(0.12))
-        .force("y", d3.forceY(d => d.cy).strength(0.12))
-        .force("collide", d3.forceCollide(d => d.r + 2.5).iterations(6))
-        .stop();
-
-    for (let i = 0; i < 220; i += 1) {
-        simulation.tick();
-    }
-
-    nodes.forEach(node => {
-        node.x = Math.max(node.r + 8, Math.min(mapWidth - node.r - 8, node.x));
-        node.y = Math.max(node.r + 8, Math.min(mapHeight - node.r - 8, node.y));
-    });
-
-    const countries = frame.selectAll(".country")
-        .data(nodes)
+    const countries = mapGroup.selectAll(".country")
+        .data(warped.features)
         .join("path")
         .attr("class", "country")
-        .datum(d => d.feature)
-        .attr("d", (d, i) => path(nodes[i].piece))
+        .attr("d", path)
         .attr("fill", d => featureFill(d, colorScale))
         .attr("stroke", "#ffffff")
-        .attr("stroke-width", 0.7)
-        .attr("transform", (d, i) => {
-            const node = nodes[i];
-            return `translate(${node.x},${node.y}) scale(${node.k}) translate(${-node.cx},${-node.cy})`;
-        });
+        .attr("stroke-width", 0.6);
 
     bindCountryEvents(countries, colorScale);
-
-    frame.selectAll(".cartogram-label")
-        .data(nodes.filter(d => d.properties.rank <= 12 || d.r > 36))
-        .join("text")
-        .attr("class", "cartogram-label")
-        .attr("x", d => d.x)
-        .attr("y", d => d.y)
-        .attr("dy", "0.35em")
-        .text(d => d.properties.name);
 
     svg.on("click", function () {
         state.pinnedId = null;
@@ -341,6 +343,7 @@ function drawCartogram(geoData, colorScale) {
         setActive(null);
     });
 
+    status.text("Area encodes GDP");
     return countries;
 }
 
@@ -399,7 +402,7 @@ Promise.all([
     populateSelect(stats);
     drawLegend(colorScale, values);
     drawChoropleth(geoData, colorScale);
-    drawCartogram(geoData, colorScale);
+    drawCartogram(geoData, colorScale, stats);
 }).catch(error => {
     d3.select("#join-status").text("Could not load map data");
     d3.select("#choropleth").append("p")
