@@ -227,47 +227,46 @@ function drawChoropleth(geoData, colorScale) {
     return countries;
 }
 
-function featureCoords(feature) {
-    const coords = [];
-    const walk = node => {
-        if (!node) return;
-        if (typeof node[0] === "number") {
-            coords.push(node);
-            return;
-        }
-        node.forEach(walk);
-    };
-    walk(feature.geometry && feature.geometry.coordinates);
-    return coords;
-}
-
 function quantile(values, p) {
     if (!values.length) return 0;
     const i = Math.max(0, Math.min(values.length - 1, Math.floor(p * (values.length - 1))));
     return values[i];
 }
 
-function fitProjectedCollection(features, path, width, height, pad) {
-    const xs = [];
-    const ys = [];
-    features.forEach(feature => {
-        featureCoords(feature).forEach(([x, y]) => {
-            if (Number.isFinite(x) && Number.isFinite(y)) {
-                xs.push(x);
-                ys.push(y);
-            }
-        });
-    });
-    xs.sort((a, b) => a - b);
-    ys.sort((a, b) => a - b);
+function finiteBox(bounds) {
+    return bounds
+        && Number.isFinite(bounds[0][0])
+        && Number.isFinite(bounds[0][1])
+        && Number.isFinite(bounds[1][0])
+        && Number.isFinite(bounds[1][1]);
+}
 
-    const x0 = quantile(xs, 0.02);
-    const x1 = quantile(xs, 0.98);
-    const y0 = quantile(ys, 0.045);
-    const y1 = quantile(ys, 0.96);
+function fitProjectedCollection(features, path, width, height, pad) {
+    const boxes = features
+        .map(feature => path.bounds(feature))
+        .filter(finiteBox);
+
+    const centersX = boxes.map(b => (b[0][0] + b[1][0]) / 2).sort((a, b) => a - b);
+    const centersY = boxes.map(b => (b[0][1] + b[1][1]) / 2).sort((a, b) => a - b);
+    const cx0 = quantile(centersX, 0.03);
+    const cx1 = quantile(centersX, 0.97);
+    const cy0 = quantile(centersY, 0.03);
+    const cy1 = quantile(centersY, 0.97);
+
+    const kept = boxes.filter(b => {
+        const cx = (b[0][0] + b[1][0]) / 2;
+        const cy = (b[0][1] + b[1][1]) / 2;
+        return cx >= cx0 && cx <= cx1 && cy >= cy0 && cy <= cy1;
+    });
+    const used = kept.length ? kept : boxes;
+
+    const x0 = d3.min(used, b => b[0][0]);
+    const x1 = d3.max(used, b => b[1][0]);
+    const y0 = d3.min(used, b => b[0][1]);
+    const y1 = d3.max(used, b => b[1][1]);
     const boxWidth = Math.max(x1 - x0, 1);
     const boxHeight = Math.max(y1 - y0, 1);
-    const scale = Math.min((width - pad * 2) / boxWidth, (height - pad * 2) / boxHeight);
+    const scale = 0.97 * Math.min((width - pad * 2) / boxWidth, (height - pad * 2) / boxHeight);
     const tx = width / 2 - scale * (x0 + x1) / 2;
     const ty = height / 2 - scale * (y0 + y1) / 2;
     return `translate(${tx},${ty}) scale(${scale})`;
@@ -324,7 +323,7 @@ function drawCartogram(geoData, colorScale, stats) {
     const clipped = frame.append("g").attr("clip-path", "url(#cartogram-clip)");
     const mapGroup = clipped.append("g")
         .attr("class", "map-layer")
-        .attr("transform", fitProjectedCollection(warped.features, path, mapWidth, mapHeight, 6));
+        .attr("transform", fitProjectedCollection(warped.features, path, mapWidth, mapHeight, 16));
 
     const countries = mapGroup.selectAll(".country")
         .data(warped.features)
