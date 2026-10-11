@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 10 · STATS 401</title>
+  <meta name="description" content="Lab 9 GDP maps extended with voice commands for STATS 401 Lab 10.">
+  <title>Lab 10 · Novel Interaction</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="lab-page">
@@ -11,8 +12,134 @@
     <a class="brand" href="../index.html" aria-label="STATS 401 home"><span class="brand-mark">401</span><span>Data Acquisition<br>and Visualization</span></a>
     <span class="semester">Lab 10 / 10</span>
   </header>
-  <main class="placeholder">
-    <div><span class="lab-number">LAB 10</span><h1>Coming soon.</h1><p>This lab will be added here later in the semester.</p><a class="primary-link" href="../index.html">Back to all labs</a></div>
+  <main class="lab-main">
+    <a class="back-link" href="../index.html">← Back to all labs</a>
+
+    <section class="lab-intro">
+      <div>
+        <p class="eyebrow">Lab 10 · Novel Interaction</p>
+        <h1>Name it,<br><em>on the map.</em></h1>
+      </div>
+      <p>Lab 9’s coordinated GDP choropleth and cartogram, with voice added. Say a region or a country. Buttons, the menu, and the keyboard do the same tasks if the microphone fails.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="dataset-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="dataset-title">Extended visualization</h2>
+          <p>The Lab 9 maps are reused. Color is still 2025 nominal GDP. Area on the cartogram is still GDP.</p>
+        </div>
+        <span id="join-status" class="chart-key">Loading data</span>
+      </div>
+      <dl class="dataset-details">
+        <div><dt>Previous lab</dt><dd>Lab 9 geospatial maps</dd></div>
+        <div><dt>GDP file</dt><dd>lab9_gdp_2025_top50.csv</dd></div>
+        <div><dt>Boundaries</dt><dd>world.geojson</dd></div>
+        <div><dt>New input</dt><dd>Voice, after a click</dd></div>
+      </dl>
+      <p>Gray countries are outside the top-50 file. They are missing data, not zero GDP. Russia is grouped with Europe. Türkiye, Cyprus, and the Caucasus are grouped with Asia. Those choices only affect the region filter.</p>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="voice-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="voice-title">Voice control</h2>
+          <p>One command at a time. The microphone stays off until you press the button.</p>
+        </div>
+        <span class="chart-key">English commands</span>
+      </div>
+
+      <div class="lab-controls" aria-label="Voice control">
+        <button id="voice-button" type="button" disabled>Start Voice Control</button>
+      </div>
+
+      <dl class="voice-feedback" aria-live="polite">
+        <div><dt>Voice</dt><dd id="voice-status">Voice control inactive</dd></div>
+        <div><dt>Heard</dt><dd id="voice-heard">—</dd></div>
+        <div><dt>Action</dt><dd id="voice-action">—</dd></div>
+      </dl>
+
+      <ul class="command-list" aria-label="Commands to try">
+        <li><code>Show Asia</code></li>
+        <li><code>Show Europe</code></li>
+        <li><code>Show Africa</code></li>
+        <li><code>Show North America</code></li>
+        <li><code>Show South America</code></li>
+        <li><code>Show Oceania</code></li>
+        <li><code>Highlight Japan</code></li>
+        <li><code>Highlight China</code></li>
+        <li><code>Zoom in</code> / <code>Zoom out</code></li>
+        <li><code>Reset</code></li>
+      </ul>
+
+      <div class="lab-controls" aria-label="Fallback controls">
+        <button class="fallback-control" type="button" data-region="Asia" disabled>Show Asia</button>
+        <button class="fallback-control" type="button" data-region="Europe" disabled>Show Europe</button>
+        <button class="fallback-control" type="button" data-region="Africa" disabled>Show Africa</button>
+        <button class="fallback-control" type="button" data-region="North America" disabled>Show North America</button>
+        <button class="fallback-control" type="button" data-region="South America" disabled>Show South America</button>
+        <button class="fallback-control" type="button" data-region="Oceania" disabled>Show Oceania</button>
+        <button id="zoom-in" class="fallback-control" type="button" disabled>Zoom in</button>
+        <button id="zoom-out" class="fallback-control" type="button" disabled>Zoom out</button>
+        <button id="reset-view" class="fallback-control" type="button" disabled>Reset</button>
+        <label class="control-field" for="country-select">
+          <span class="control-label">Highlight a top-50 country</span>
+          <select id="country-select" disabled>
+            <option value="">Choose a country</option>
+          </select>
+        </label>
+      </div>
+      <p id="active-country" class="lab9-active">Hover or click a country to highlight it in both maps.</p>
+
+      <div class="encoding-guide" aria-label="How to use voice control">
+        <h3>How the command becomes a map change</h3>
+        <p><strong>Click</strong> Start Voice Control. The browser asks for the microphone only after that click.</p>
+        <p><strong>Heard</strong> is the transcript. <strong>Action</strong> is what the map did. If the phrase is not recognized, the action line lists commands that work.</p>
+        <p><strong>Show Europe</strong> calls <code>filterRegion</code>: countries outside Europe dim on both maps, and the choropleth zooms to Europe. <strong>Highlight Japan</strong> calls <code>highlightCountry</code> and pins that country in both views. <strong>Reset</strong> calls <code>resetVisualization</code>.</p>
+        <p><strong>Fallback.</strong> The same functions are wired to the buttons, the country menu, click, hover, and the keyboard. Press A, E, N, S, F, or O for a region, R or Escape to reset, and + or − to zoom. The maps stay usable when speech recognition is missing or permission is denied.</p>
+        <p><strong>Privacy.</strong> Listening stays on through a short pause, so the rest of the command is not cut off. Press Stop Voice Control to end it sooner. This page does not store the recording. In Chromium, the Web Speech API sends audio to the browser’s speech service, so leave the button unpressed if you do not want that.</p>
+      </div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="choropleth-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="choropleth-title">Choropleth</h2>
+          <p>Country shape stays geographic. Voice zoom lands here. Drag to pan, and scroll to zoom, as in Lab 9.</p>
+        </div>
+        <span id="choropleth-key" class="chart-key">Log color scale</span>
+      </div>
+      <div id="choropleth" role="img" aria-label="Choropleth map of 2025 nominal GDP with voice filtering"></div>
+      <div id="choropleth-legend" class="lab9-legend" aria-label="Quantitative GDP color legend"></div>
+    </section>
+
+    <section class="chart-shell lab-note" aria-labelledby="cartogram-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="cartogram-title">Cartogram</h2>
+          <p>Area still represents GDP. A voice filter dims the same countries here, without zooming this view, so size stays comparable.</p>
+        </div>
+        <span id="cartogram-status" class="chart-key">Area encodes GDP</span>
+      </div>
+      <div id="cartogram" role="img" aria-label="Contiguous cartogram of 2025 nominal GDP"></div>
+      <p class="map-note">Hover or click a shape to read its name. The choropleth highlights the same country. Click a selected country again, or click the ocean, to clear the pin without clearing a region filter. Reset clears both.</p>
+    </section>
+
+    <section class="chart-shell lab-note findings-block" aria-labelledby="reflection-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="reflection-title">Design reflection</h2>
+          <p>What was extended, what the voice commands do, and where recognition fails.</p>
+        </div>
+      </div>
+      <p id="reflection-copy">I extended the Lab 9 coordinated choropleth and contiguous cartogram of 2025 nominal GDP. The novel modality is voice, using the browser Web Speech API. The microphone opens only after Start Voice Control is clicked, and one transcript is passed to handleVoiceCommand. That function calls the same actions as the pointer: filterRegion, highlightCountry, and resetVisualization. Saying “Show Europe” dims every country outside Europe and zooms the choropleth to the region. “Highlight Japan” pins Japan on both maps. “Reset” clears the filter, the pin, and the zoom. Voice fits this task because a region or a country is easier to name than to point at. Compact high-GDP economies such as Singapore, Belgium, and the Netherlands are easy to miss with a cursor and easy to say. Region buttons, the country menu, click, hover, and keyboard shortcuts remain available when recognition fails or microphone permission is denied. Short names are often misheard, and Chromium sends the audio to the browser speech service rather than recognizing it on the page. The status line always shows the heard text and the action taken, so a wrong command can be corrected at once.</p>
+    </section>
   </main>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topogram@1.0.1/build/topogram.js"></script>
+  <script src="lab10.js"></script>
 </body>
 </html>
