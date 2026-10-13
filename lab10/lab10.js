@@ -61,10 +61,7 @@ const state = {
     activeId: null,
     pinnedId: null,
     region: null,
-    zoom: null,
-    choroplethSvg: null,
-    projection: null,
-    path: null,
+    views: [],
     stats: [],
     byName: new Map(),
     byIso: new Map(),
@@ -230,58 +227,78 @@ function finiteBox(bounds) {
         && Number.isFinite(bounds[1][1]);
 }
 
-function zoomToward(x, y, scale) {
-    if (!state.choroplethSvg || !state.zoom) return;
+function zoomTowardView(view, x, y, scale) {
+    if (!view.svg || !view.zoom) return;
     const tx = mapWidth / 2 - scale * x;
     const ty = mapHeight / 2 - scale * y;
-    state.choroplethSvg.transition().duration(650).call(
-        state.zoom.transform,
+    view.svg.transition().duration(650).call(
+        view.zoom.transform,
         d3.zoomIdentity.translate(tx, ty).scale(scale)
     );
 }
 
-function zoomToBounds(x0, y0, x1, y1) {
+function zoomToBoundsView(view, x0, y0, x1, y1) {
     const dx = Math.max(x1 - x0, 1);
     const dy = Math.max(y1 - y0, 1);
     const scale = Math.max(1, Math.min(8, 0.82 / Math.max(dx / mapWidth, dy / mapHeight)));
     const tx = mapWidth / 2 - scale * (x0 + x1) / 2;
     const ty = mapHeight / 2 - scale * (y0 + y1) / 2;
-    if (!state.choroplethSvg || !state.zoom) return;
-    state.choroplethSvg.transition().duration(650).call(
-        state.zoom.transform,
+    if (!view.svg || !view.zoom) return;
+    view.svg.transition().duration(650).call(
+        view.zoom.transform,
         d3.zoomIdentity.translate(tx, ty).scale(scale)
     );
 }
 
-function zoomToFeature(feature) {
-    if (!state.path) return;
-    const bounds = state.path.bounds(feature);
-    if (!finiteBox(bounds)) return;
-    const dx = bounds[1][0] - bounds[0][0];
-    const dy = bounds[1][1] - bounds[0][1];
-    if (dx > mapWidth * 0.72 || dy > mapHeight * 0.72) {
-        const center = state.path.centroid(feature);
-        if (!center || !Number.isFinite(center[0]) || !Number.isFinite(center[1])) return;
-        zoomToward(center[0], center[1], 2.2);
-        return;
-    }
-    zoomToBounds(bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]);
+function viewportBox(view, feature) {
+    const bounds = view.path.bounds(feature);
+    if (!finiteBox(bounds)) return null;
+    const x0 = view.fit.tx + view.fit.scale * bounds[0][0];
+    const x1 = view.fit.tx + view.fit.scale * bounds[1][0];
+    const y0 = view.fit.ty + view.fit.scale * bounds[0][1];
+    const y1 = view.fit.ty + view.fit.scale * bounds[1][1];
+    return {
+        x0: Math.min(x0, x1),
+        y0: Math.min(y0, y1),
+        x1: Math.max(x0, x1),
+        y1: Math.max(y0, y1)
+    };
 }
 
-function zoomToGeoBox(box) {
-    if (!state.projection || !box) return;
+function zoomViewToFeature(view, feature) {
+    const box = viewportBox(view, feature);
+    if (!box) return;
+    const dx = box.x1 - box.x0;
+    const dy = box.y1 - box.y0;
+    if (dx > mapWidth * 0.72 || dy > mapHeight * 0.72) {
+        const center = view.path.centroid(feature);
+        if (!center || !Number.isFinite(center[0]) || !Number.isFinite(center[1])) return;
+        zoomTowardView(
+            view,
+            view.fit.tx + view.fit.scale * center[0],
+            view.fit.ty + view.fit.scale * center[1],
+            2.2
+        );
+        return;
+    }
+    zoomToBoundsView(view, box.x0, box.y0, box.x1, box.y1);
+}
+
+function zoomViewToGeoBox(view, box) {
+    if (!view.projection || !box) return;
     const corners = [
         [box[0][0], box[0][1]],
         [box[1][0], box[0][1]],
         [box[0][0], box[1][1]],
         [box[1][0], box[1][1]]
     ].map(function (lonlat) {
-        return state.projection(lonlat);
+        return view.projection(lonlat);
     }).filter(function (point) {
         return point && Number.isFinite(point[0]) && Number.isFinite(point[1]);
     });
     if (corners.length < 2) return;
-    zoomToBounds(
+    zoomToBoundsView(
+        view,
         d3.min(corners, function (d) { return d[0]; }),
         d3.min(corners, function (d) { return d[1]; }),
         d3.max(corners, function (d) { return d[0]; }),
@@ -289,9 +306,47 @@ function zoomToGeoBox(box) {
     );
 }
 
+function zoomViewToRegionFeatures(view, region) {
+    const boxes = [];
+    view.byIso.forEach(function (feature) {
+        if (feature.properties.region !== region) return;
+        const box = viewportBox(view, feature);
+        if (!box) return;
+        if (box.x1 - box.x0 > mapWidth * 0.72 || box.y1 - box.y0 > mapHeight * 0.72) return;
+        boxes.push(box);
+    });
+    if (!boxes.length) return;
+    zoomToBoundsView(
+        view,
+        d3.min(boxes, function (d) { return d.x0; }),
+        d3.min(boxes, function (d) { return d.y0; }),
+        d3.max(boxes, function (d) { return d.x1; }),
+        d3.max(boxes, function (d) { return d.y1; })
+    );
+}
+
+function zoomToCountry(iso3) {
+    state.views.forEach(function (view) {
+        const feature = view.byIso.get(iso3);
+        if (feature) zoomViewToFeature(view, feature);
+    });
+}
+
+function zoomToRegion(region) {
+    state.views.forEach(function (view) {
+        if (view.projection && regionFrames[region]) {
+            zoomViewToGeoBox(view, regionFrames[region]);
+            return;
+        }
+        zoomViewToRegionFeatures(view, region);
+    });
+}
+
 function zoomBy(factor) {
-    if (!state.choroplethSvg || !state.zoom) return;
-    state.choroplethSvg.transition().duration(400).call(state.zoom.scaleBy, factor);
+    state.views.forEach(function (view) {
+        if (!view.svg || !view.zoom) return;
+        view.svg.transition().duration(400).call(view.zoom.scaleBy, factor);
+    });
 }
 
 function highlightCountry(country) {
@@ -305,7 +360,7 @@ function highlightCountry(country) {
     const hasOption = !d3.select(`#country-select option[value="${feature.properties.iso3}"]`).empty();
     d3.select("#country-select").property("value", hasOption ? feature.properties.iso3 : "");
     setActive(feature.properties.iso3);
-    zoomToFeature(feature);
+    zoomToCountry(feature.properties.iso3);
     setAction(`Highlighting ${feature.properties.name}`);
     return true;
 }
@@ -317,7 +372,7 @@ function filterRegion(region) {
     d3.select("#country-select").property("value", "");
     updateRegionButtons();
     setActive(null);
-    zoomToGeoBox(regionFrames[region]);
+    zoomToRegion(region);
     setAction(`Showing ${region}`);
     return true;
 }
@@ -328,10 +383,11 @@ function resetVisualization() {
     d3.select("#country-select").property("value", "");
     updateRegionButtons();
     setActive(null);
-    if (state.choroplethSvg && state.zoom) {
-        state.choroplethSvg.transition().duration(500).call(state.zoom.transform, d3.zoomIdentity);
-    }
-    setAction("Resetting the map");
+    state.views.forEach(function (view) {
+        if (!view.svg || !view.zoom) return;
+        view.svg.transition().duration(500).call(view.zoom.transform, d3.zoomIdentity);
+    });
+    setAction("Resetting both maps");
 }
 
 function showCommandError(command) {
@@ -689,8 +745,6 @@ function drawChoropleth(geoData, colorScale) {
     const projection = d3.geoNaturalEarth1()
         .fitSize([mapWidth, mapHeight], landForFit(geoData));
     const path = d3.geoPath().projection(projection);
-    state.projection = projection;
-    state.path = path;
 
     const svg = d3.select("#choropleth")
         .append("svg")
@@ -730,8 +784,14 @@ function drawChoropleth(geoData, colorScale) {
         });
 
     svg.call(zoom);
-    state.zoom = zoom;
-    state.choroplethSvg = svg;
+    state.views.push({
+        svg: svg,
+        zoom: zoom,
+        path: path,
+        projection: projection,
+        fit: { tx: 0, ty: 0, scale: 1 },
+        byIso: state.byIso
+    });
 
     svg.on("click", function () {
         state.pinnedId = null;
@@ -774,7 +834,7 @@ function fitProjectedCollection(features, path, width, height, pad) {
     const scale = 0.97 * Math.min((width - pad * 2) / boxWidth, (height - pad * 2) / boxHeight);
     const tx = width / 2 - scale * (x0 + x1) / 2;
     const ty = height / 2 - scale * (y0 + y1) / 2;
-    return `translate(${tx},${ty}) scale(${scale})`;
+    return { tx: tx, ty: ty, scale: scale };
 }
 
 function cartogramValue(feature, floor) {
@@ -828,11 +888,12 @@ function drawCartogram(geoData, colorScale, stats) {
         .attr("height", mapHeight);
 
     const clipped = frame.append("g").attr("clip-path", "url(#cartogram-clip)");
-    const mapGroup = clipped.append("g")
-        .attr("class", "map-layer")
-        .attr("transform", fitProjectedCollection(warped.features, path, mapWidth, mapHeight, 16));
+    const fit = fitProjectedCollection(warped.features, path, mapWidth, mapHeight, 16);
+    const mapGroup = clipped.append("g").attr("class", "map-layer");
+    const fitted = mapGroup.append("g")
+        .attr("transform", `translate(${fit.tx},${fit.ty}) scale(${fit.scale})`);
 
-    const countries = mapGroup.selectAll(".country")
+    const countries = fitted.selectAll(".country")
         .data(warped.features)
         .join("path")
         .attr("class", "country")
@@ -842,6 +903,28 @@ function drawCartogram(geoData, colorScale, stats) {
         .attr("stroke-width", 0.6);
 
     bindCountryEvents(countries);
+
+    const cartogramByIso = new Map();
+    warped.features.forEach(function (feature) {
+        cartogramByIso.set(feature.properties.iso3, feature);
+    });
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[-80, -80], [mapWidth + 80, mapHeight + 80]])
+        .on("zoom", function (event) {
+            mapGroup.attr("transform", event.transform);
+        });
+
+    svg.call(zoom);
+    state.views.push({
+        svg: svg,
+        zoom: zoom,
+        path: path,
+        projection: null,
+        fit: fit,
+        byIso: cartogramByIso
+    });
 
     svg.on("click", function () {
         state.pinnedId = null;

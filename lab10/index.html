@@ -95,7 +95,7 @@
         <h3>How the command becomes a map change</h3>
         <p><strong>Click</strong> Start Voice Control. The browser asks for the microphone only after that click.</p>
         <p><strong>Heard</strong> is the transcript. <strong>Action</strong> is what the map did. If the phrase is not recognized, the action line lists commands that work.</p>
-        <p><strong>Show Europe</strong> calls <code>filterRegion</code>: countries outside Europe dim on both maps, and the choropleth zooms to Europe. <strong>Highlight Japan</strong> calls <code>highlightCountry</code> and pins that country in both views. <strong>Reset</strong> calls <code>resetVisualization</code>.</p>
+        <p><strong>Show Europe</strong> calls <code>filterRegion</code>: countries outside Europe dim, and both the choropleth and the cartogram zoom to Europe. <strong>Highlight Japan</strong> calls <code>highlightCountry</code>, pins that country, and zooms to it on both maps. <strong>Reset</strong> calls <code>resetVisualization</code> for both views. Zoom in and zoom out use the same scale on each map.</p>
         <p><strong>Fallback.</strong> The same functions are wired to the buttons, the country menu, click, hover, and the keyboard. Press A, E, N, S, F, or O for a region, R or Escape to reset, and + or − to zoom. The maps stay usable when speech recognition is missing or permission is denied.</p>
         <p><strong>Privacy.</strong> Listening stays on through a short pause, so the rest of the command is not cut off. Press Stop Voice Control to end it sooner. This page does not store the recording. In Chromium, the Web Speech API sends audio to the browser’s speech service, so leave the button unpressed if you do not want that.</p>
       </div>
@@ -105,7 +105,7 @@
       <div class="chart-heading">
         <div>
           <h2 id="choropleth-title">Choropleth</h2>
-          <p>Country shape stays geographic. Voice zoom lands here. Drag to pan, and scroll to zoom, as in Lab 9.</p>
+          <p>Country shape stays geographic. A voice command zooms this map and the cartogram together. Drag to pan, and scroll to zoom.</p>
         </div>
         <span id="choropleth-key" class="chart-key">Log color scale</span>
       </div>
@@ -117,12 +117,12 @@
       <div class="chart-heading">
         <div>
           <h2 id="cartogram-title">Cartogram</h2>
-          <p>Area still represents GDP. A voice filter dims the same countries here, without zooming this view, so size stays comparable.</p>
+          <p>Area still represents GDP. Show, highlight, zoom, and reset move this view with the choropleth, using the warped shapes rather than geographic boxes.</p>
         </div>
         <span id="cartogram-status" class="chart-key">Area encodes GDP</span>
       </div>
       <div id="cartogram" role="img" aria-label="Contiguous cartogram of 2025 nominal GDP"></div>
-      <p class="map-note">Hover or click a shape to read its name. The choropleth highlights the same country. Click a selected country again, or click the ocean, to clear the pin without clearing a region filter. Reset clears both.</p>
+      <p class="map-note">Hover or click a shape to read its name. The same country is highlighted on the choropleth, and a voice highlight zooms both maps. Click a selected country again, or click the background, to clear the pin without clearing a region filter. Reset clears both views.</p>
     </section>
 
     <section class="chart-shell lab-note findings-block" aria-labelledby="reflection-title">
@@ -132,7 +132,7 @@
           <p>What was extended, what the voice commands do, and where recognition fails.</p>
         </div>
       </div>
-      <p id="reflection-copy">I extended the Lab 9 coordinated choropleth and contiguous cartogram of 2025 nominal GDP. The novel modality is voice, using the browser Web Speech API. The microphone opens only after Start Voice Control is clicked, and one transcript is passed to handleVoiceCommand. That function calls the same actions as the pointer: filterRegion, highlightCountry, and resetVisualization. Saying “Show Europe” dims every country outside Europe and zooms the choropleth to the region. “Highlight Japan” pins Japan on both maps. “Reset” clears the filter, the pin, and the zoom. Voice fits this task because a region or a country is easier to name than to point at. Compact high-GDP economies such as Singapore, Belgium, and the Netherlands are easy to miss with a cursor and easy to say. Region buttons, the country menu, click, hover, and keyboard shortcuts remain available when recognition fails or microphone permission is denied. Short names are often misheard, and Chromium sends the audio to the browser speech service rather than recognizing it on the page. The status line always shows the heard text and the action taken, so a wrong command can be corrected at once.</p>
+      <p id="reflection-copy">I extended the Lab 9 coordinated choropleth and contiguous cartogram of 2025 nominal GDP. The novel modality is voice, using the browser Web Speech API. The microphone opens only after Start Voice Control is clicked, and one transcript is passed to handleVoiceCommand. That function calls the same actions as the pointer: filterRegion, highlightCountry, and resetVisualization. Saying “Show Europe” dims every country outside Europe and zooms both maps to that region. “Highlight Japan” pins Japan and zooms to it on both maps. “Reset” clears the filter, the pin, and both zooms. Voice fits this task because a region or a country is easier to name than to point at. Compact high-GDP economies such as Singapore, Belgium, and the Netherlands are easy to miss with a cursor and easy to say. Region buttons, the country menu, click, hover, and keyboard shortcuts remain available when recognition fails or microphone permission is denied. Short names are often misheard, and Chromium sends the audio to the browser speech service rather than recognizing it on the page. The status line always shows the heard text and the action taken, so a wrong command can be corrected at once.</p>
     </section>
   </main>
 
